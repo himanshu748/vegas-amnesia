@@ -66,6 +66,12 @@ class FakeCognee:
 
 @pytest.fixture()
 def client(monkeypatch):
+    # neutralize the public-play budget so unrelated tests never trip it
+    monkeypatch.setattr("backend.config.PUBLIC_SESSIONS_PER_IP_HOUR", 10_000)
+    monkeypatch.setattr("backend.config.PUBLIC_DAILY_SESSIONS", 1_000_000)
+    from backend.services import rate_limit
+    rate_limit._ip_starts.clear()
+
     fake = FakeCognee()
     for target in ("backend.services.game", "backend.routers.game",
                    "backend.routers.memory", "backend.routers.session"):
@@ -214,16 +220,29 @@ def test_reset_creates_fresh_session_and_drops_dataset(client):
     assert r2.status_code == 404
 
 
-def test_access_gate(client, monkeypatch):
+def test_public_budget_and_bypass_code(client, monkeypatch):
     monkeypatch.setattr("backend.config.ACCESS_CODE", "sesame")
-    assert client.post("/api/session/start").status_code == 401
+    monkeypatch.setattr("backend.config.PUBLIC_SESSIONS_PER_IP_HOUR", 1)
+    from backend.services import rate_limit
+    rate_limit._ip_starts.clear()
+
+    assert client.post("/api/session/start").status_code == 200  # public play works
+    limited = client.post("/api/session/start")                   # 2nd within an hour
+    assert limited.status_code == 429
+    assert "detective" in limited.json()["detail"]
     assert client.post("/api/session/start",
-                       headers={"X-Access-Code": "wrong"}).status_code == 401
+                       headers={"X-Access-Code": "wrong"}).status_code == 429
     ok = client.post("/api/session/start", headers={"X-Access-Code": "sesame"})
-    assert ok.status_code == 200
-    # session-scoped endpoints stay usable without re-sending the code
+    assert ok.status_code == 200  # bypass ignores limits
     sid = ok.json()["state"]["session_id"]
     assert client.get("/api/game/state", params={"session_id": sid}).status_code == 200
+
+
+def test_daily_budget_exhaustion(client, monkeypatch):
+    monkeypatch.setattr("backend.config.PUBLIC_DAILY_SESSIONS", 0)
+    r = client.post("/api/session/start")
+    assert r.status_code == 429
+    assert "budget" in r.json()["detail"]
 
 
 def test_session_cap_evicts_oldest(client, monkeypatch):

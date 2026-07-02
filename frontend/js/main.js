@@ -220,9 +220,12 @@ const Main = (() => {
     try {
       return await api.startSession();
     } catch (err) {
-      if (!String(err.message).includes("access code")) throw err;
-      const code = prompt("RESTRICTED UNIT // enter access code:");
-      if (code) localStorage.setItem("vegas_access_code", code.trim());
+      const msg = String(err.message);
+      const limited = msg.includes("access code") || msg.includes("budget") || msg.includes("detective");
+      if (!limited) throw err;
+      const code = prompt(msg + "\n\nHave an access code? Enter it (or Cancel):");
+      if (!code) throw err;
+      localStorage.setItem("vegas_access_code", code.trim());
       return api.startSession(); // one retry; a wrong code throws to the boot log
     }
   }

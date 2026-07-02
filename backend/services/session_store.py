@@ -41,13 +41,22 @@ class Session:
 _SESSIONS: dict[str, Session] = {}
 
 
+# datasets of capacity-evicted sessions, awaiting best-effort Cognee cleanup
+_EVICTED_DATASETS: list[str] = []
+
+
+def drain_evicted_datasets() -> list[str]:
+    drained, _EVICTED_DATASETS[:] = _EVICTED_DATASETS[:], []
+    return drained
+
+
 def create_session(start_location: str) -> Session:
-    # cap concurrent sessions — evict the oldest (its Cognee dataset is
-    # cleaned up lazily by the next reset; acceptable at hackathon scale)
+    # cap concurrent sessions — evict the oldest, queue its dataset for cleanup
     from backend import config
 
     while len(_SESSIONS) >= config.MAX_SESSIONS:
         oldest = min(_SESSIONS.values(), key=lambda s: s.started_at)
+        _EVICTED_DATASETS.append(oldest.dataset)
         del _SESSIONS[oldest.id]
 
     sid = uuid.uuid4().hex[:12]
