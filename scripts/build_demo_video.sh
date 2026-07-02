@@ -22,15 +22,15 @@ card() { # card <dur> <line1> <line2> <color1>
 # ---------- demo.mp4 ----------
 ffmpeg -y -i "$RAW" -filter_complex "
 $(card 3.5 'VEGAS AMNESIA' 'an AI detective game on the Cognee Cloud memory lifecycle' $PINK)[intro];
-$(seg 5.5 10.5 'HAL-9001 boots with a wiped memory graph' $CYAN)[s1];
-$(seg 37.8 48.5 '1/4 REMEMBER — evidence becomes graph memory' $CYAN)[s2];
-$(seg 54.0 60.0 'every discovery grows the live memory graph' $CYAN)[s3];
-$(seg 79.0 85.3 'characters are LLM-driven — they react to what your graph knows' $AMBER)[s4];
-$(seg 92.4 98.5 '2/4 RECALL — Ask HAL cites its source nodes' $CYAN)[s5];
-$(seg 107.0 113.5 '3/4 MEMIFY — consolidation derives purple inferences' $PURPLE)[s6];
-$(seg 122.5 134.5 '4/4 FORGET — right-click prunes red herrings for real' $PINK)[s7];
-$(seg 143.0 150.0 'SOLVE — the night, reconstructed with citations' $AMBER)[s8];
-$(seg 150.5 156.0 'every Cognee call on the record — press backtick' $PURPLE)[s9];
+$(seg 1.2 6.5 'HAL-9001 boots with a wiped memory graph' $CYAN)[s1];
+$(seg 27.5 38.0 '1/4 REMEMBER — evidence becomes graph memory' $CYAN)[s2];
+$(seg 44.0 50.5 'every discovery grows the live memory graph' $CYAN)[s3];
+$(seg 62.0 68.5 'characters are LLM-driven — they react to what your graph knows' $AMBER)[s4];
+$(seg 75.5 82.0 '2/4 RECALL — Ask HAL cites its source nodes' $CYAN)[s5];
+$(seg 89.5 96.0 '3/4 MEMIFY — consolidation derives purple inferences' $PURPLE)[s6];
+$(seg 104.5 120.0 '4/4 FORGET — right-click prunes red herrings for real' $PINK)[s7];
+$(seg 126.0 132.5 'SOLVE — the night, reconstructed with citations' $AMBER)[s8];
+$(seg 133.5 139.0 'every Cognee call on the record — press backtick' $PURPLE)[s9];
 $(card 4 'play it now' 'vegas-amnesia.vercel.app        WeMakeDevs x Cognee — The Hangover Part AI' $CYAN)[outro];
 [intro][s1][s2][s3][s4][s5][s6][s7][s8][s9][outro]concat=n=11:v=1:a=0[v]
 " -map "[v]" -c:v libx264 -crf 22 -pix_fmt yuv420p -movflags +faststart docs/demo.mp4
@@ -38,11 +38,11 @@ $(card 4 'play it now' 'vegas-amnesia.vercel.app        WeMakeDevs x Cognee — 
 # ---------- cognee-deep-dive.mp4 ----------
 ffmpeg -y -i "$RAW" -filter_complex "
 $(card 3.5 'HOW WE USE COGNEE CLOUD' 'remember - recall - memify - forget — all four, live' $PURPLE)[intro];
-$(seg 37.8 46.0 'POST /api/v1/remember — one data item per fact, auto-cognified' $CYAN)[s1];
-$(seg 92.4 98.5 'POST /api/v1/recall + includeReferences — answers cite chunks' $CYAN)[s2];
-$(seg 107.0 113.5 'memify = cognify re-run w/ inference prompt + derived facts' $PURPLE)[s3];
-$(seg 128.0 134.5 'POST /api/v1/forget dataId — graph nodes actually deleted' $PINK)[s4];
-$(seg 150.5 156.0 'the receipts — every lifecycle call, timed, in-game' $AMBER)[s5];
+$(seg 27.5 36.0 'POST /api/v1/remember — one data item per fact, auto-cognified' $CYAN)[s1];
+$(seg 75.5 82.0 'POST /api/v1/recall + includeReferences — answers cite chunks' $CYAN)[s2];
+$(seg 89.5 96.0 'memify = cognify re-run w/ inference prompt + derived facts' $PURPLE)[s3];
+$(seg 112.0 120.0 'POST /api/v1/forget dataId — graph nodes actually deleted' $PINK)[s4];
+$(seg 133.5 139.0 'the receipts — every lifecycle call, timed, in-game' $AMBER)[s5];
 $(card 4 'per-session datasets - graph deltas - citations' 'github.com/…/vegas-amnesia        vegas-amnesia.vercel.app' $CYAN)[outro];
 [intro][s1][s2][s3][s4][s5][outro]concat=n=7:v=1:a=0[v]
 " -map "[v]" -c:v libx264 -crf 22 -pix_fmt yuv420p -movflags +faststart docs/cognee-deep-dive.mp4
