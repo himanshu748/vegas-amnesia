@@ -4,13 +4,48 @@ from __future__ import annotations
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
+import logging
+
 from backend.models.facts import load_ground_truth
 from backend.models.world import load_world
 from backend.routers.session import require_session
-from backend.services import cognee_client, game
+from backend.services import cognee_client, game, llm
 from backend.services.solve import evaluate_solve
 
+log = logging.getLogger("game")
 router = APIRouter(prefix="/api", tags=["game"])
+
+
+async def generate_line(session, character, truth, message, history,
+                        reveal_text, lie_mode) -> str:
+    """LLM line with persona + graph context; scripted fallback on any failure."""
+    if llm.available():
+        try:
+            known = [
+                (f.text, fid in session.discovered)
+                for fid in character.knows_facts + character.confesses_facts
+                if (f := truth.fact_by_id(fid))
+            ]
+            player_facts = [
+                rec["text"] for fid, rec in session.discovered.items()
+                if fid in session.active_fact_ids
+            ]
+            debunks = [
+                character.debunk_hints[rh] for rh in character.debunks
+                if rh in session.active_fact_ids and rh in character.debunk_hints
+            ]
+            system = llm.build_dialogue_system(
+                character, known, player_facts, reveal_text, lie_mode, debunks)
+            messages = [
+                {"role": "user" if m["role"] == "player" else "assistant", "content": m["content"]}
+                for m in history[-8:]
+            ]
+            return await llm.chat(system, messages)
+        except Exception as exc:
+            log.warning("LLM dialogue failed, using scripted line: %s", exc)
+    if reveal_text:
+        return f"{reveal_text}"
+    return "Look, I've told you everything I remember. Try someone else — or that graph of yours."
 
 
 class LocationEnter(BaseModel):
@@ -88,9 +123,9 @@ async def inspect_evidence(body: EvidenceInspect) -> dict:
 
 @router.post("/character/talk")
 async def talk_to_character(body: CharacterTalk) -> dict:
-    """M3 placeholder dialogue: each exchange reveals the character's next
-    unknown fact with a canned line. M6 swaps this for LLM-generated dialogue
-    with persona + graph-aware context; the revelation/remember flow is final.
+    """Fact reveals stay deterministic (scripted arc, reliable demo); the
+    spoken line is LLM-generated with persona + graph-aware context, falling
+    back to scripted lines when no LLM key is configured.
     """
     session = require_session(body.session_id)
     character = load_world().character(body.character_id)
@@ -109,25 +144,29 @@ async def talk_to_character(body: CharacterTalk) -> dict:
         if required <= session.active_fact_ids:
             session.unlocked.add(character.id)
 
-    if character.id == "lucky_lou" and character.id not in session.unlocked:
-        candidates = character.knows_facts  # the lie (f08)
-    else:
-        candidates = character.knows_facts + character.confesses_facts
+    lie_mode = character.id == "lucky_lou" and character.id not in session.unlocked
+    candidates = character.knows_facts if lie_mode else (
+        character.knows_facts + character.confesses_facts
+    )
 
     for fid in candidates:
         if fid not in session.discovered:
             revealed_ids = [fid]
             break
 
+    reveal_text = None
+    if revealed_ids:
+        fact = truth.fact_by_id(revealed_ids[0])
+        reveal_text = fact.text if fact else None
+
+    line = await generate_line(session, character, truth, body.message,
+                               history, reveal_text, lie_mode)
+
     remembered = await game.remember_facts(session, revealed_ids)
     delta = None
     if remembered:
         _, delta = await game.fresh_graph_delta(session)
 
-    if remembered:
-        line = f"{character.name}: \"{remembered[0]['text']}\""
-    else:
-        line = f"{character.name} has nothing new to add. (LLM dialogue lands in M6.)"
     history.append({"role": "character", "content": line})
 
     return {

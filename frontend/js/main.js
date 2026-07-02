@@ -108,9 +108,15 @@ const Main = (() => {
       const resp = await api.memify(state.session_id);
       const delta = Graph.applyDelta(resp.graph_delta, { inference: true });
       updateHud(resp.hud);
-      toast(delta.nodes || delta.edges
-        ? `💡 memify: +${delta.nodes} inferred nodes, +${delta.edges} edges`
-        : "memify ran — memory already consolidated", "purple");
+      if (resp.inferences?.length) {
+        Graph.registerFacts(resp.inferences);
+        resp.inferences.forEach((inf, i) =>
+          setTimeout(() => toast(`💡 INFERRED: ${inf.text}`, "purple"), i * 900));
+      } else {
+        toast(delta.nodes || delta.edges
+          ? `💡 memify: +${delta.nodes} inferred nodes, +${delta.edges} edges`
+          : "memify ran — no new inferences yet. Discover more first.", "purple");
+      }
     } catch (err) { toast(err.message, "error"); }
     btn.disabled = false; btn.textContent = "🧠 CONSOLIDATE";
   };

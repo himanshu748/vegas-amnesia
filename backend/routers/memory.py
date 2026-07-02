@@ -4,6 +4,7 @@ from __future__ import annotations
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
+from backend.models.facts import load_ground_truth
 from backend.routers.session import require_session
 from backend.services import cognee_client, game
 
@@ -26,11 +27,38 @@ class RecallRequest(BaseModel):
 
 @router.post("/memory/memify")
 async def memify(body: MemifyRequest) -> dict:
-    """Consolidate memories: nodes/edges that appear during this call are
-    tagged as inferences and rendered purple/glowing by the frontend."""
+    """Consolidate memories. Two layers:
+    1. Cognee's cognify re-run with the inference-extraction prompt.
+    2. Derivation: any ground-truth derivable inference whose premises are all
+       in the player's active memory gets remembered as a new memory item.
+    Nodes/edges appearing during this call render purple as inferences.
+    """
     session = require_session(body.session_id)
     await cognee_client.memify(session.dataset)
     session.memify_runs += 1
+
+    truth = load_ground_truth()
+    derived = [
+        {"id": d.id, "text": d.text}
+        for d in truth.derivable
+        if d.id not in session.discovered
+        and set(d.derived_from) <= session.active_fact_ids
+    ]
+    new_inferences = []
+    if derived:
+        result = await cognee_client.remember(derived, session.dataset)
+        for entry in result["remembered"]:
+            record = {
+                "fact_id": entry["fact_id"],
+                "text": entry["text"],
+                "data_id": entry["data_id"],
+                "source_type": "inference",
+                "source_ref": f"memify_run_{session.memify_runs}",
+                "is_red_herring": False,
+                "time_hint": None,
+            }
+            session.discovered[entry["fact_id"]] = record
+            new_inferences.append(record)
     graph, delta = await game.fresh_graph_delta(session)
     new_ids = {n["data"]["id"] for n in delta["added_nodes"]}
     session.inference_node_ids |= new_ids
@@ -40,7 +68,12 @@ async def memify(body: MemifyRequest) -> dict:
     for node in graph["nodes"]:
         if node["data"]["id"] in new_ids:
             node["data"]["type"] = "inference"
-    return {"graph": graph, "graph_delta": delta, "hud": game.hud_counts(session)}
+    return {
+        "graph": graph,
+        "graph_delta": delta,
+        "inferences": new_inferences,
+        "hud": game.hud_counts(session),
+    }
 
 
 @router.post("/memory/forget")

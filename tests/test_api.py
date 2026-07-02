@@ -148,6 +148,21 @@ def test_memify_tags_new_nodes_as_inferences(client):
     assert r.json()["hud"]["inferences"] == len(added)
 
 
+def test_memify_derives_inferences_when_premises_known(client):
+    sid = start(client)
+    # safe_note yields f13 + f14 — the premises of derivable d2
+    client.post("/api/evidence/inspect", json={
+        "session_id": sid, "location_id": "hotel_suite", "hotspot_id": "safe_note"})
+    r = client.post("/api/memory/memify", json={"session_id": sid})
+    inferred = r.json()["inferences"]
+    assert [i["fact_id"] for i in inferred] == ["d2"]
+    assert inferred[0]["source_type"] == "inference"
+    assert "hotel safe" in inferred[0]["text"]
+    # premises incomplete -> no double-derivation on a second run
+    r2 = client.post("/api/memory/memify", json={"session_id": sid})
+    assert r2.json()["inferences"] == []
+
+
 def test_recall_returns_answer_and_citations(client):
     sid = start(client)
     client.post("/api/evidence/inspect", json={
