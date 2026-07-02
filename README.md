@@ -13,12 +13,17 @@ Cloud track**.
 
 ## Memory lifecycle usage (for the judges)
 
-| Lifecycle op | Cognee Cloud endpoint | In-game mechanic |
+| Lifecycle op | Cognee Cloud endpoint (verified live via `scripts/smoke_test.py`) | In-game mechanic |
 |---|---|---|
-| `remember` | `POST /api/v1/remember` | Inspecting evidence / character revelations → facts ingested, nodes pop into the graph |
-| `recall` | `POST /api/v1/recall` (+ `/search` for typed queries) | "Ask HAL" free-text questions + the final "Solve the Night" check, with graph-node citations |
-| `memify` | `POST /api/v1/memify` | "Consolidate Memories" button → inferred nodes/edges render purple with a 💡 animation |
-| `forget` | `DELETE /api/v1/datasets/{id}/data/{data_id}` (unified v1.0 deletion API) | Right-click a node → prune red herrings; node fades out |
+| `remember` | `POST /api/v1/remember` (multipart, auto-cognifies; one data item per fact, named by fact id) | Inspecting evidence / character revelations → facts ingested, nodes pop into the graph |
+| `recall` | `POST /api/v1/recall` with `includeReferences` (+ `/search` for typed queries) | "Ask HAL" free-text questions + the final "Solve the Night" check, with graph-node citations |
+| `memify` | `POST /api/v1/cognify` re-run with a custom inference-extraction prompt¹ | "Consolidate Memories" button → inferred nodes/edges render purple with a 💡 animation |
+| `forget` | `POST /api/v1/forget` with `dataId` (dedicated unified-deletion endpoint) | Right-click a node → prune red herrings; node fades out |
+
+¹ Our Cognee Cloud tenant doesn't expose `/api/v1/memify`, so per the closest-equivalent rule we
+implement memify as a `cognify` re-run whose `customPrompt` extracts *inferred* temporal/causal/
+contradiction relationships across already-remembered facts (see `MEMIFY_PROMPT` in
+`backend/services/cognee_client.py`).
 
 Every call is timed and logged (`backend/services/cognee_client.py:CALL_LOG`);
 press <kbd>`</kbd> in-game for the raw lifecycle-call debug overlay.

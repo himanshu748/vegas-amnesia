@@ -53,12 +53,21 @@ def _log_call(op: str, dataset: str, ms: float, ok: bool, detail: str = "") -> N
     logger.info("cognee.%s dataset=%s ok=%s %.0fms %s", op, dataset, ok, ms, detail[:120])
 
 
+_client_instance: Optional[httpx.AsyncClient] = None
+
+
 def _client() -> httpx.AsyncClient:
-    return httpx.AsyncClient(
-        base_url=config.COGNEE_BASE_URL,
-        headers={"X-Api-Key": config.COGNEE_API_KEY},
-        timeout=httpx.Timeout(120.0, connect=15.0),
-    )
+    """One pooled client for the process — avoids per-call DNS lookups and
+    follows Cognee's trailing-slash 307 redirects."""
+    global _client_instance
+    if _client_instance is None or _client_instance.is_closed:
+        _client_instance = httpx.AsyncClient(
+            base_url=config.COGNEE_BASE_URL,
+            headers={"X-Api-Key": config.COGNEE_API_KEY},
+            timeout=httpx.Timeout(180.0, connect=30.0),
+            follow_redirects=True,
+        )
+    return _client_instance
 
 
 async def _request(
@@ -77,8 +86,7 @@ async def _request(
     for attempt in range(retries + 1):
         start = time.perf_counter()
         try:
-            async with _client() as client:
-                resp = await client.request(method, path, json=json, data=data, files=files)
+            resp = await _client().request(method, path, json=json, data=data, files=files)
             ms = (time.perf_counter() - start) * 1000
             if resp.status_code < 300:
                 _log_call(op, dataset, ms, True)
@@ -141,27 +149,53 @@ async def list_data_items(dataset: str) -> list[dict]:
 # Lifecycle: remember -> recall -> memify -> forget
 # ---------------------------------------------------------------------------
 
-async def remember(facts: list[str], dataset: str) -> dict:
+async def remember(facts: list[dict | str], dataset: str) -> dict:
     """Ingest facts into the session dataset. One remember call per fact, so
-    every fact becomes its own data item and can be individually forgotten.
+    every fact becomes its own Cognee data item and can be individually
+    forgotten. Facts are {"id": ..., "text": ...} dicts (bare strings get a
+    generated id); the fact id becomes the data item's name and node_set tag,
+    so graph nodes trace back to ground-truth ids.
 
-    /api/v1/remember is multipart and auto-cognifies — no separate cognify call.
+    /api/v1/remember is multipart and auto-cognifies — no separate cognify
+    call. The response's `items` list is CUMULATIVE for the dataset (not just
+    the new item), so data_ids are resolved afterwards by item name — items
+    are named by fact id, which is unique per dataset.
     """
     results, failed = [], []
-    for fact in facts:
+    for i, fact in enumerate(facts):
+        if isinstance(fact, str):
+            fact = {"id": f"fact_{i}", "text": fact}
         try:
             result = await _request(
                 "remember",
                 "POST",
                 "/api/v1/remember",
                 dataset,
-                data={"datasetName": dataset},
-                files={"data": ("fact.txt", fact.encode("utf-8"), "text/plain")},
+                data={"datasetName": dataset, "node_set": fact["id"]},
+                files={"data": (f"{fact['id']}.txt", fact["text"].encode("utf-8"), "text/plain")},
             )
-            results.append({"fact": fact, "result": result})
+            results.append(
+                {
+                    "fact_id": fact["id"],
+                    "text": fact["text"],
+                    "data_id": None,  # filled from the listing below
+                    "dataset_id": result.get("dataset_id"),
+                }
+            )
         except (CogneeError, httpx.HTTPError) as exc:
             _PENDING_REMEMBERS.append((fact, dataset))
-            failed.append({"fact": fact, "error": str(exc)})
+            failed.append({"fact_id": fact["id"], "error": str(exc)})
+
+    if results:
+        try:
+            id_by_name = {
+                str(item.get("name")): str(item.get("id"))
+                for item in await list_data_items(dataset)
+            }
+            for r in results:
+                r["data_id"] = id_by_name.get(r["fact_id"])
+        except (CogneeError, httpx.HTTPError):
+            pass  # non-fatal: forget() can re-resolve by fact_id later
     return {"remembered": results, "failed": failed, "queued": len(_PENDING_REMEMBERS)}
 
 
@@ -185,65 +219,74 @@ async def recall(
     """Query the memory graph. Uses /recall (auto-routed) by default; passes
     through to /search when an explicit search_type is requested.
     """
+    payload = {
+        "query": query,
+        "datasets": [dataset],
+        "topK": top_k,
+        "includeReferences": True,
+        "verbose": True,
+    }
     if search_type:
-        return await _request(
-            "search",
-            "POST",
-            "/api/v1/search",
-            dataset,
-            json={
-                "query": query,
-                "searchType": search_type,
-                "datasets": [dataset],
-                "topK": top_k,
-            },
-        )
-    return await _request(
-        "recall",
-        "POST",
-        "/api/v1/recall",
-        dataset,
-        json={"query": query, "datasets": [dataset], "topK": top_k},
-    )
+        payload["searchType"] = search_type
+        return await _request("search", "POST", "/api/v1/search", dataset, json=payload)
+    return await _request("recall", "POST", "/api/v1/recall", dataset, json=payload)
+
+
+MEMIFY_PROMPT = (
+    "You are consolidating a detective's memory of one night in Las Vegas. "
+    "Beyond the entities and relationships stated directly, extract INFERRED "
+    "connections: temporal ordering between events (which happened before/after "
+    "which), causal links (what led to what), and contradictions between facts. "
+    "Prefer relationships that connect facts from different sources."
+)
 
 
 async def memify(dataset: str) -> dict:
-    """Run Cognee's consolidation/enrichment pass — derives new inferred
-    nodes/edges from what's already remembered. The game diffs the graph
-    before/after to animate the inferences.
+    """Consolidation pass — derives inferred nodes/edges from what's already
+    remembered. The game diffs the graph before/after to animate inferences.
+
+    NOTE: this Cognee Cloud tenant doesn't expose /api/v1/memify, so this maps
+    to the closest supported equivalent: re-running POST /api/v1/cognify over
+    the dataset with a custom inference-extraction prompt (temporal/causal/
+    contradiction relationships). Mapping documented in README for the judges.
     """
     return await _request(
         "memify",
         "POST",
-        "/api/v1/memify",
+        "/api/v1/cognify",
         dataset,
-        json={"datasetName": dataset, "runInBackground": False},
+        json={
+            "datasets": [dataset],
+            "runInBackground": False,
+            "customPrompt": MEMIFY_PROMPT,
+        },
     )
 
 
-async def forget(dataset: str, *, data_id: Optional[str] = None, fact_text: Optional[str] = None) -> dict:
-    """Prune a memory. Targets a specific data item when data_id (or a fact_text
-    to resolve into one) is given; otherwise wipes the dataset's graph+vector
-    memory. Maps to Cognee v1.0's unified deletion API.
-    """
-    ds_id = await dataset_id_for_name(dataset)
-    if ds_id is None:
-        raise CogneeError(f"forget: dataset '{dataset}' not found")
+async def forget(
+    dataset: str, *, data_id: Optional[str] = None, fact_id: Optional[str] = None
+) -> dict:
+    """Prune a memory via the dedicated POST /api/v1/forget endpoint.
 
-    if data_id is None and fact_text is not None:
+    Targets one data item when data_id is given (remember() returns these).
+    fact_id resolves to a data_id by item name (remember names items by fact
+    id). With neither, clears the dataset's graph+vector memory (memoryOnly),
+    keeping raw records re-cognifiable.
+    """
+    if data_id is None and fact_id is not None:
         for item in await list_data_items(dataset):
-            name = str(item.get("name", "")) + str(item.get("raw_data_location", ""))
-            if fact_text[:60].lower() in (str(item.get("text", "")) + name).lower():
+            if str(item.get("name")) == fact_id:
                 data_id = str(item.get("id"))
                 break
         if data_id is None:
-            raise CogneeError(f"forget: no data item matching '{fact_text[:60]}'")
+            raise CogneeError(f"forget: no data item named '{fact_id}' in '{dataset}'")
 
+    payload: dict = {"dataset": dataset}
     if data_id is not None:
-        return await _request(
-            "forget", "DELETE", f"/api/v1/datasets/{ds_id}/data/{data_id}", dataset
-        )
-    return await _request("forget", "DELETE", f"/api/v1/datasets/{ds_id}", dataset)
+        payload["dataId"] = data_id
+    else:
+        payload["memoryOnly"] = True
+    return await _request("forget", "POST", "/api/v1/forget", dataset, json=payload)
 
 
 # ---------------------------------------------------------------------------

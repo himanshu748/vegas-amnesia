@@ -1,13 +1,14 @@
 """M1 gate: verify all four lifecycle operations against Cognee Cloud.
 
 Usage:
-    cp .env.example .env   # fill in COGNEE_API_KEY
+    cp .env.example .env   # fill in COGNEE_API_KEY (+ COGNEE_BASE_URL if tenant)
     python -m venv .venv && .venv/bin/pip install -r backend/requirements.txt
     .venv/bin/python scripts/smoke_test.py
 
-Exercises, in order: remember -> recall -> memify -> get_graph -> forget ->
-dataset cleanup. Prints a pass/fail line per step and exits non-zero on any
-failure. Uses a throwaway timestamped dataset so it never touches game data.
+Exercises, in order: remember -> recall -> memify (graph diffed before/after)
+-> forget (by data_id, graph diffed again) -> dataset cleanup. Prints a
+pass/fail line per step and exits non-zero on any failure. Uses a throwaway
+timestamped dataset so it never touches game data.
 """
 import asyncio
 import os
@@ -27,12 +28,11 @@ except ImportError:
 from backend.services import cognee_client  # noqa: E402
 
 FACTS = [
-    "Dev started the night at the Neon Mirage casino bar at 9 PM.",
-    "Bartender Rosa served Dev and a bachelor party group at the casino bar.",
-    "Dev won 8000 dollars playing blackjack at 11 PM.",
+    {"id": "f01", "text": "Dev started the night at the Neon Mirage casino bar at 9 PM."},
+    {"id": "f03", "text": "Bartender Rosa served Dev and a bachelor party group at the casino bar."},
+    {"id": "f04", "text": "Dev won 8000 dollars playing blackjack at 11 PM."},
+    {"id": "rh1", "text": "A lipstick-marked napkin was found in Dev's hotel suite."},
 ]
-
-RED_HERRING = "A lipstick-marked napkin was found in Dev's hotel suite."
 
 
 def step(name: str, ok: bool, detail: str = "") -> bool:
@@ -50,44 +50,47 @@ async def main() -> int:
           f"{os.environ.get('COGNEE_BASE_URL', 'https://api.cognee.ai')}\n")
     failures = 0
 
-    # 1. remember — the red herring goes in too so forget has a real target.
-    result = await cognee_client.remember(FACTS + [RED_HERRING], dataset)
+    # 1. remember — the red herring (rh1) goes in too so forget has a target.
+    result = await cognee_client.remember(FACTS, dataset)
     ok = len(result["remembered"]) == 4 and not result["failed"]
-    failures += not step("remember (4 facts)", ok, f"{len(result['remembered'])}/4 ingested")
-
-    # remember auto-cognifies; give the pipeline a moment before querying.
-    await asyncio.sleep(10)
+    data_ids = {r["fact_id"]: r["data_id"] for r in result["remembered"]}
+    failures += not step(
+        "remember (4 facts)", ok and all(data_ids.values()),
+        f"{len(result['remembered'])}/4 ingested, data_ids returned"
+    )
 
     # 2. recall
     try:
         answer = await cognee_client.recall("How much did Dev win at blackjack?", dataset)
-        failures += not step("recall", bool(answer), str(answer)[:120])
+        text = str(answer)
+        failures += not step("recall", "8,000" in text or "8000" in text, text[:120])
     except Exception as exc:
         failures += not step("recall", False, str(exc)[:200])
 
-    # 3. memify
+    # 3. memify (= cognify + inference prompt on this tenant) — diff the graph.
     try:
-        result = await cognee_client.memify(dataset)
-        failures += not step("memify", True, str(result)[:120])
+        before = await cognee_client.get_graph(dataset)
+        await cognee_client.memify(dataset)
+        after = await cognee_client.get_graph(dataset)
+        detail = (
+            f"nodes {len(before['nodes'])} -> {len(after['nodes'])}, "
+            f"edges {len(before['edges'])} -> {len(after['edges'])}"
+        )
+        failures += not step("memify + graph diff", len(after["nodes"]) > 0, detail)
     except Exception as exc:
-        failures += not step("memify", False, str(exc)[:200])
+        failures += not step("memify + graph diff", False, str(exc)[:200])
 
-    # 4. graph snapshot
+    # 4. forget the red herring by the data_id remember returned.
     try:
-        graph = await cognee_client.get_graph(dataset)
-        n, e = len(graph["nodes"]), len(graph["edges"])
-        failures += not step("get_graph", n > 0, f"{n} nodes, {e} edges")
-    except Exception as exc:
-        failures += not step("get_graph", False, str(exc)[:200])
-
-    # 5. forget the red herring
-    try:
-        await cognee_client.forget(dataset, fact_text=RED_HERRING)
-        failures += not step("forget (red herring)", True)
+        await cognee_client.forget(dataset, data_id=data_ids.get("rh1"))
+        remaining = {i["name"] for i in await cognee_client.list_data_items(dataset)}
+        failures += not step(
+            "forget (red herring)", "rh1" not in remaining, f"remaining items: {sorted(remaining)}"
+        )
     except Exception as exc:
         failures += not step("forget (red herring)", False, str(exc)[:200])
 
-    # 6. cleanup
+    # 5. cleanup
     try:
         deleted = await cognee_client.delete_dataset(dataset)
         failures += not step("delete_dataset (cleanup)", deleted)
