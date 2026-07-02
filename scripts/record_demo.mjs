@@ -82,35 +82,15 @@ await sleep(3000);
 await page.click("#evidence-close");
 await sleep(3000);
 mark("forget_rightclick");
-// right-click a napkin-related node: find one via the graph registry
-const pos = await page.evaluate(() => {
-  const cy = Graph.cyRef();
-  let target = null;
-  cy.nodes().forEach((n) => {
-    const l = (n.data("label") || "").toLowerCase();
-    if (l.includes("napkin") || l.includes("lipstick") || l === "rh1") target = n;
-  });
-  if (!target) target = cy.nodes().last();
-  const p = target.renderedPosition();
-  const rect = document.getElementById("graph").getBoundingClientRect();
-  return { x: rect.left + p.x, y: rect.top + p.y };
+// drive the forget flow through the same path the right-click menu uses
+// (right-clicking a specific 3D node from playwright is not deterministic)
+await page.evaluate(async () => {
+  const resp = await api.forget(Main.sessionId(), "rh1");
+  Graph.markForgotten("rh1");
+  Graph.applyDelta(resp.graph_delta);
+  Main.updateHud(resp.hud);
+  Main.toast("🗑 forgot rh1 — red herring pruned from memory", "error");
 });
-await page.mouse.click(pos.x, pos.y, { button: "right" });
-await sleep(800);
-const menuVisible = await page.evaluate(() =>
-  !document.getElementById("forget-menu").classList.contains("hidden"));
-if (menuVisible) {
-  await page.click("#forget-btn");
-} else {
-  // fallback: forget through the API path the button uses
-  await page.evaluate(async () => {
-    const resp = await api.forget(Main.sessionId(), "rh1");
-    Graph.markForgotten("rh1");
-    Graph.applyDelta(resp.graph_delta);
-    Main.updateHud(resp.hud);
-    Main.toast("🗑 forgot rh1 — red herring pruned", "error");
-  });
-}
 mark("forget_fade");
 await sleep(4500);
 

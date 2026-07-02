@@ -29,9 +29,6 @@ const Main = (() => {
     $("boot-screen").style.display = "none";
     $("topbar").classList.remove("hidden");
     $("game").classList.remove("hidden");
-    // cytoscape was initialized while #game was display:none (0x0 canvas)
-    const cy = Graph.cyRef();
-    if (cy) { cy.resize(); cy.fit(undefined, 20); }
     startClock();
   }
 
@@ -156,11 +153,10 @@ const Main = (() => {
   }
 
   function citeFactEntities(text) {
-    const cy = Graph.cyRef();
     const words = text.toLowerCase().split(/\W+/).filter(w => w.length > 4);
-    const ids = cy.nodes().filter(n =>
-      words.some(w => (n.data("label") || "").toLowerCase().includes(w))
-    ).map(n => n.id());
+    const ids = Graph.allNodes()
+      .filter(n => words.some(w => n.label.toLowerCase().includes(w)))
+      .map(n => n.id);
     Graph.citeNodes(ids);
   }
 
@@ -231,7 +227,7 @@ const Main = (() => {
   }
 
   async function init() {
-    Graph.init();
+    await Graph.init();
     await Scene.loadManifest();
     const bootPromise = boot();
     const started = await startWithAccessGate();
@@ -259,13 +255,13 @@ const Main = (() => {
 const Forget = (() => {
   let pendingFactId = null;
 
-  function openMenu(evt) {
-    const factId = Graph.factForNode(evt.target);
+  function openMenu(nodeLabel, x, y) {
+    const factId = Graph.factForLabel(nodeLabel);
     if (!factId) return;
     pendingFactId = factId;
     const menu = document.getElementById("forget-menu");
-    menu.style.left = evt.originalEvent.clientX + "px";
-    menu.style.top = evt.originalEvent.clientY + "px";
+    menu.style.left = x + "px";
+    menu.style.top = y + "px";
     menu.classList.remove("hidden");
   }
 
