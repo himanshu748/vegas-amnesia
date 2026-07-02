@@ -116,14 +116,22 @@ async def _request(
 # ---------------------------------------------------------------------------
 
 async def list_datasets() -> list[dict]:
-    result = await _request("datasets.list", "GET", "/api/v1/datasets")
+    # trailing slash matters: the bare path 307-redirects (and downgrades to http)
+    result = await _request("datasets.list", "GET", "/api/v1/datasets/")
     return result if isinstance(result, list) else result.get("datasets", [])
 
 
+# dataset name -> id cache; ids are stable for a dataset's lifetime
+_DATASET_IDS: dict[str, str] = {}
+
+
 async def dataset_id_for_name(dataset: str) -> Optional[str]:
+    if dataset in _DATASET_IDS:
+        return _DATASET_IDS[dataset]
     for ds in await list_datasets():
         if ds.get("name") == dataset:
-            return str(ds.get("id"))
+            _DATASET_IDS[dataset] = str(ds.get("id"))
+            return _DATASET_IDS[dataset]
     return None
 
 
@@ -133,6 +141,7 @@ async def delete_dataset(dataset: str) -> bool:
     if ds_id is None:
         return False
     await _request("datasets.delete", "DELETE", f"/api/v1/datasets/{ds_id}", dataset)
+    _DATASET_IDS.pop(dataset, None)
     return True
 
 

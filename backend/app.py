@@ -35,6 +35,8 @@ async def cognee_log() -> dict:
     return {"calls": cognee_client.CALL_LOG[-100:]}
 
 
-# Game/session/memory routers are added in M3:
-# from backend.routers import session, game, memory
-# app.include_router(session.router); app.include_router(game.router); ...
+from backend.routers import game, memory, session  # noqa: E402
+
+app.include_router(session.router)
+app.include_router(game.router)
+app.include_router(memory.router)

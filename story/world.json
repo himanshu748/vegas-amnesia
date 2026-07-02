@@ -1,0 +1,234 @@
+{
+  "start_location": "hotel_suite",
+  "locations": [
+    {
+      "id": "hotel_suite",
+      "name": "Hotel Suite",
+      "description": "Your owner's suite at the Neon Mirage, thoroughly trashed. Someone is snoring on the sofa.",
+      "character": "chad",
+      "hotspots": [
+        {
+          "id": "dead_phone",
+          "name": "Dev's dead phone",
+          "description": "Dev's phone, battery at 0%. Plugging it in reveals the last photo is timestamped 1:28 AM — and one unheard voicemail from 'CHAD!!'. He's yelling congratulations... on a wedding?",
+          "facts": ["f09", "rh3"]
+        },
+        {
+          "id": "safe_note",
+          "name": "Note on the room safe",
+          "description": "A sticky note in Dev's handwriting on the hotel safe: 'Ring stays HERE until the proposal dinner. Code = her bday.' The safe is locked, set to 0214.",
+          "facts": ["f13", "f14"]
+        },
+        {
+          "id": "ice_bucket_cash",
+          "name": "Suspiciously heavy ice bucket",
+          "description": "The ice bucket doesn't slosh — it rustles. Inside: a fat roll of hundreds, still in a casino band.",
+          "facts": ["f20"]
+        },
+        {
+          "id": "room_service_receipt",
+          "name": "Room service receipt",
+          "description": "Crumpled receipt, 4:02 AM: 'PANCAKES x12. Extra syrup. Tell the chef he is a hero.'",
+          "facts": ["f17"]
+        },
+        {
+          "id": "lipstick_napkin",
+          "name": "Lipstick-marked napkin",
+          "description": "A cocktail napkin with a lipstick kiss and a phone number. This... could be bad. Or could be nothing. Rosa's bar logo is printed on the corner.",
+          "facts": ["rh1"]
+        }
+      ]
+    },
+    {
+      "id": "casino_floor",
+      "name": "Casino Floor",
+      "description": "The Neon Mirage casino floor, eerily quiet at 7 AM. A cleaning crew works around the blackjack pit.",
+      "character": null,
+      "hotspots": [
+        {
+          "id": "casino_chip_receipt",
+          "name": "Cashier cage receipt",
+          "description": "A payout slip from the cage, timestamped 11:04 PM: '$8,000 — table BJ-6.' Dev cleaned up at blackjack.",
+          "facts": ["f04"]
+        },
+        {
+          "id": "stray_pawn_ticket",
+          "name": "Stray pawn ticket",
+          "description": "A pawn ticket for a DIAMOND RING, found near table BJ-6. If Dev pawned a diamond ring... that would be very, very bad.",
+          "facts": ["rh2"]
+        },
+        {
+          "id": "security_report",
+          "name": "Security incident report",
+          "description": "A clipboard left by security: '01:00 — male guest in a mustard jacket dove into the lobby fountain.' Dev owns a mustard jacket.",
+          "facts": ["rh4"]
+        },
+        {
+          "id": "blackjack_table",
+          "name": "Table BJ-6",
+          "description": "The blackjack table still has a 'RESERVED — HIGH ROLLER' placard. The dealer's tip jar has a note: 'Thanks Dev!! -M'",
+          "facts": []
+        }
+      ]
+    },
+    {
+      "id": "rosas_bar",
+      "name": "Rosa's Bar",
+      "description": "The casino bar. Rosa is polishing glasses and watching you like she's seen a hundred mornings like this.",
+      "character": "rosa",
+      "hotspots": [
+        {
+          "id": "bar_polaroid",
+          "name": "Polaroid on the mirror",
+          "description": "A polaroid tucked into the bar mirror: Dev, arms around a dozen strangers in 'KOWALSKI'S LAST STAND' t-shirts. Everyone is mid-laugh.",
+          "facts": ["f02"]
+        },
+        {
+          "id": "bar_tab",
+          "name": "Enormous bar tab",
+          "description": "Dev's tab, closed at 11:47 PM: 'One round for EVERYONE (x2)'. Big tipper energy.",
+          "facts": ["f05"]
+        },
+        {
+          "id": "neon_matchbook",
+          "name": "Matchbook from Lucky Lou's",
+          "description": "A matchbook: 'LUCKY LOU'S PAWN — OPEN ALL NITE'. Someone wrote a watch sketch inside the flap.",
+          "facts": []
+        }
+      ]
+    },
+    {
+      "id": "chapel",
+      "name": "Little Neon Chapel",
+      "description": "A 24-hour wedding chapel drowning in pink neon. Rev. Sonny is mid-rehearsal for no one.",
+      "character": "rev_sonny",
+      "hotspots": [
+        {
+          "id": "chapel_polaroid",
+          "name": "Ceremony polaroid wall",
+          "description": "The chapel's polaroid wall. There, timestamped 2:04 AM: Dev and a man in a 'BEST MAN' sash, holding hands over a tiny altar, both crying with laughter.",
+          "facts": ["f10"]
+        },
+        {
+          "id": "gift_shop_rack",
+          "name": "Gift shop ring rack",
+          "description": "A spinner rack of $15 novelty rings: 'FRIENDSHIP 4EVER', 'BEST NIGHT EVER', 'VEGAS BABY'. One peg is empty.",
+          "facts": []
+        },
+        {
+          "id": "guestbook",
+          "name": "Chapel guestbook",
+          "description": "The 2 AM entry, in wobbly handwriting: 'Dev + Marcus. NOT A WEDDING (Sonny made us write that). Best night ever.'",
+          "facts": []
+        }
+      ]
+    },
+    {
+      "id": "pawn_shop",
+      "name": "Lucky Lou's Pawn Shop",
+      "description": "A cluttered all-night pawn shop. Lucky Lou eyes you from behind bulletproof glass, radiating innocence. Too much innocence.",
+      "character": "lucky_lou",
+      "hotspots": [
+        {
+          "id": "pawn_receipt",
+          "name": "Carbon-copy receipt",
+          "description": "The shop's own carbon copy, sticking out of the register: '1:02 AM — VINTAGE GOLD WATCH, $1,200, SOLD to walk-in (paid cash, huge tip).' Signed: Dev.",
+          "facts": ["f07"]
+        },
+        {
+          "id": "watch_case",
+          "name": "Empty watch display case",
+          "description": "A velvet display case with a watch-shaped gap in the dust. The price tag on the shelf reads $1,200.",
+          "facts": []
+        },
+        {
+          "id": "lous_ledger",
+          "name": "Lou's ledger",
+          "description": "Lou's handwritten ledger, if you can get him to open it. The diamond-ring pawn ticket traces to a 'Ms. Delgado' — not Dev.",
+          "facts": []
+        }
+      ]
+    },
+    {
+      "id": "parking_garage",
+      "name": "Rooftop Parking Garage",
+      "description": "The rooftop garage at dawn. A rented convertible is parked diagonally across three spots, top down.",
+      "character": null,
+      "hotspots": [
+        {
+          "id": "parking_stub",
+          "name": "Parking stub",
+          "description": "Machine stamp: 'ENTERED 3:11 AM — ROOFTOP LEVEL'. The convertible's rental agreement is in the glovebox under seventeen napkins.",
+          "facts": ["f15"]
+        },
+        {
+          "id": "stray_keycard",
+          "name": "Keycard in the passenger seat",
+          "description": "A Neon Mirage keycard for room 2412 wedged in the passenger seat. Dev's room is 3115. Whose room is 2412?",
+          "facts": ["rh5"]
+        },
+        {
+          "id": "rooftop_view",
+          "name": "View of the Strip",
+          "description": "The whole Strip glitters below. Someone has written 'BEST NIGHT EVER' in the dust on the convertible's hood.",
+          "facts": []
+        }
+      ]
+    }
+  ],
+  "characters": [
+    {
+      "id": "rosa",
+      "name": "Rosa",
+      "role": "Bartender at the casino bar",
+      "location": "rosas_bar",
+      "persona": "World-weary, warm underneath, seen everything twice. Answers what she's asked and not a syllable more — she respects a good detective and has no patience for a lazy one. Dry humor. Genuinely liked Dev.",
+      "knows_facts": ["f01", "f02", "f03", "f05", "f06"],
+      "debunks": ["rh1"],
+      "debunk_hints": {
+        "rh1": "If asked about the lipstick napkin: it came from the bridal shower at table 9 — a bridesmaid tucked it into CHAD's jacket as a joke. Not Dev's."
+      },
+      "unlock_condition": null
+    },
+    {
+      "id": "lucky_lou",
+      "name": "Lucky Lou",
+      "role": "Pawn shop owner",
+      "location": "pawn_shop",
+      "persona": "Evasive, fast-talking, allergic to paperwork questions. He LIES and claims Dev was never in the shop (he doesn't want the missus knowing he sold the watch below market after losing a bet on it). If the player presents the carbon-copy receipt (f07), he folds instantly and becomes chatty and helpful.",
+      "knows_facts": ["f08"],
+      "confesses_facts": ["f07"],
+      "debunks": ["rh2"],
+      "debunk_hints": {
+        "rh2": "Once he folds: the diamond-ring pawn ticket is Ms. Delgado's, a regular. Shows you the ledger to prove it."
+      },
+      "unlock_condition": {"requires_facts": ["f07"], "grants": "confession"}
+    },
+    {
+      "id": "rev_sonny",
+      "name": "Rev. Sonny",
+      "role": "Chapel officiant",
+      "location": "chapel",
+      "persona": "Impossibly dramatic Vegas chapel reverend — every sentence is a sermon, every pause theatrical. Delighted to have an audience. Holds the twist: the 2 AM ceremony was a FRIENDSHIP ceremony (he invented it, he's very proud), NOT a wedding, and the ring came from his own gift shop.",
+      "knows_facts": ["f10", "f11", "f12"],
+      "debunks": ["rh3"],
+      "debunk_hints": {
+        "rh3": "Chad's 'congratulations on your wedding' voicemail: Chad was weeping with joy and confused about what he was witnessing. Sonny remembers him fondly."
+      },
+      "unlock_condition": null
+    },
+    {
+      "id": "chad",
+      "name": "Chad",
+      "role": "Bachelor party survivor, currently on your sofa",
+      "location": "hotel_suite",
+      "persona": "Catastrophically hungover, fragments of memory surface out of order, unfailingly enthusiastic even in pain. Mixes truth with confident nonsense. Calls everyone 'legend'. His memory of the watch handoff and the end of the night is actually reliable.",
+      "knows_facts": ["f16", "f18", "f19"],
+      "debunks": ["rh5"],
+      "debunk_hints": {
+        "rh5": "Room 2412 is Marcus's room — Marcus handed Dev the keycard to hold during the ceremony because the sash had no pockets."
+      },
+      "unlock_condition": null
+    }
+  ]
+}
