@@ -216,11 +216,22 @@ const Main = (() => {
   });
 
   // ---------- init ----------
+  async function startWithAccessGate() {
+    try {
+      return await api.startSession();
+    } catch (err) {
+      if (!String(err.message).includes("access code")) throw err;
+      const code = prompt("RESTRICTED UNIT // enter access code:");
+      if (code) localStorage.setItem("vegas_access_code", code.trim());
+      return api.startSession(); // one retry; a wrong code throws to the boot log
+    }
+  }
+
   async function init() {
     Graph.init();
     await Scene.loadManifest();
     const bootPromise = boot();
-    const started = await api.startSession();
+    const started = await startWithAccessGate();
     state = started.state;
     world.locations = state.locations;
     // character metadata comes with each location payload; cache names for docks

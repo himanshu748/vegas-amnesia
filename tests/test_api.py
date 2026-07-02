@@ -214,6 +214,25 @@ def test_reset_creates_fresh_session_and_drops_dataset(client):
     assert r2.status_code == 404
 
 
+def test_access_gate(client, monkeypatch):
+    monkeypatch.setattr("backend.config.ACCESS_CODE", "sesame")
+    assert client.post("/api/session/start").status_code == 401
+    assert client.post("/api/session/start",
+                       headers={"X-Access-Code": "wrong"}).status_code == 401
+    ok = client.post("/api/session/start", headers={"X-Access-Code": "sesame"})
+    assert ok.status_code == 200
+    # session-scoped endpoints stay usable without re-sending the code
+    sid = ok.json()["state"]["session_id"]
+    assert client.get("/api/game/state", params={"session_id": sid}).status_code == 200
+
+
+def test_session_cap_evicts_oldest(client, monkeypatch):
+    monkeypatch.setattr("backend.config.MAX_SESSIONS", 3)
+    sids = [start(client) for _ in range(4)]
+    assert client.get("/api/game/state", params={"session_id": sids[0]}).status_code == 404
+    assert client.get("/api/game/state", params={"session_id": sids[3]}).status_code == 200
+
+
 def test_world_story_integrity():
     """Every hotspot fact exists in ground truth; every character fact too;
     all evidence-sourced facts are reachable from some hotspot."""

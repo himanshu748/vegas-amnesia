@@ -42,6 +42,14 @@ _SESSIONS: dict[str, Session] = {}
 
 
 def create_session(start_location: str) -> Session:
+    # cap concurrent sessions — evict the oldest (its Cognee dataset is
+    # cleaned up lazily by the next reset; acceptable at hackathon scale)
+    from backend import config
+
+    while len(_SESSIONS) >= config.MAX_SESSIONS:
+        oldest = min(_SESSIONS.values(), key=lambda s: s.started_at)
+        del _SESSIONS[oldest.id]
+
     sid = uuid.uuid4().hex[:12]
     session = Session(
         id=sid,

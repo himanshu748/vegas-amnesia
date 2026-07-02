@@ -10,6 +10,12 @@ HF_MODEL = os.environ.get("HF_MODEL", "Qwen/Qwen2.5-72B-Instruct")
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
 ANTHROPIC_MODEL = os.environ.get("ANTHROPIC_MODEL", "claude-sonnet-5")
 
+# Optional access gate: when set, /api/session/start requires this code in the
+# X-Access-Code header (judges get it in the submission). Empty = open.
+ACCESS_CODE = os.environ.get("ACCESS_CODE", "")
+# Cap concurrent sessions so public traffic can't run up the Cognee tenant.
+MAX_SESSIONS = int(os.environ.get("MAX_SESSIONS", "40"))
+
 ALLOWED_ORIGINS = [
     o.strip()
     for o in os.environ.get(

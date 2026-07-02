@@ -4,9 +4,13 @@ const api = {
   async _call(method, path, body, params) {
     const url = new URL(API_BASE + path, location.origin);
     if (params) Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
+    const headers = {};
+    if (body) headers["Content-Type"] = "application/json";
+    const code = localStorage.getItem("vegas_access_code");
+    if (code) headers["X-Access-Code"] = code;
     const resp = await fetch(url, {
       method,
-      headers: body ? { "Content-Type": "application/json" } : undefined,
+      headers,
       body: body ? JSON.stringify(body) : undefined,
     });
     if (!resp.ok) {
