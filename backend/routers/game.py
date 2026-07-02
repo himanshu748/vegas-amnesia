@@ -102,19 +102,41 @@ async def enter_location(body: LocationEnter) -> dict:
 
 @router.post("/evidence/inspect")
 async def inspect_evidence(body: EvidenceInspect) -> dict:
+    """Looking is free — nothing is remembered until the player FILES it.
+    Facts come back as previews (never revealing red-herring status)."""
     session = require_session(body.session_id)
     hotspot = load_world().hotspot(body.location_id, body.hotspot_id)
     if hotspot is None:
         raise HTTPException(status_code=404, detail="unknown hotspot")
 
     session.inspected_hotspots.add(hotspot.id)
-    remembered = await game.remember_facts(session, hotspot.facts)
-    graph, delta = (None, None)
-    if remembered:
-        _, delta = await game.fresh_graph_delta(session)
-
+    truth = load_ground_truth()
+    previews = [
+        {"fact_id": fid, "text": fact.text, "already_filed": fid in session.discovered}
+        for fid in hotspot.facts
+        if (fact := truth.fact_by_id(fid))
+    ]
     return {
         "hotspot": {"id": hotspot.id, "name": hotspot.name, "description": hotspot.description},
+        "facts": previews,
+        "hud": game.hud_counts(session),
+    }
+
+
+@router.post("/evidence/file")
+async def file_evidence(body: EvidenceInspect) -> dict:
+    """The player chose to file this evidence — NOW it flows into Cognee."""
+    session = require_session(body.session_id)
+    hotspot = load_world().hotspot(body.location_id, body.hotspot_id)
+    if hotspot is None:
+        raise HTTPException(status_code=404, detail="unknown hotspot")
+
+    remembered = await game.remember_facts(session, hotspot.facts)
+    delta = None
+    if remembered:
+        _, delta = await game.fresh_graph_delta(session)
+    return {
+        "hotspot_id": hotspot.id,
         "facts": remembered,
         "graph_delta": delta,
         "hud": game.hud_counts(session),

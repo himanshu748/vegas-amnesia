@@ -24,6 +24,7 @@ const api = {
   gameState: (sid) => api._call("GET", "/api/game/state", null, { session_id: sid }),
   enterLocation: (sid, loc) => api._call("POST", "/api/location/enter", { session_id: sid, location_id: loc }),
   inspect: (sid, loc, hotspot) => api._call("POST", "/api/evidence/inspect", { session_id: sid, location_id: loc, hotspot_id: hotspot }),
+  fileEvidence: (sid, loc, hotspot) => api._call("POST", "/api/evidence/file", { session_id: sid, location_id: loc, hotspot_id: hotspot }),
   talk: (sid, character, message) => api._call("POST", "/api/character/talk", { session_id: sid, character_id: character, message }),
   memify: (sid) => api._call("POST", "/api/memory/memify", { session_id: sid }),
   forget: (sid, factId) => api._call("POST", "/api/memory/forget", { session_id: sid, fact_id: factId }),

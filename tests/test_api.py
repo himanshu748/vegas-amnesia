@@ -86,6 +86,14 @@ def start(client):
     return state["session_id"]
 
 
+def collect(client, sid, loc, hotspot):
+    """Inspect (free look) then FILE it — the flow the UI drives."""
+    client.post("/api/evidence/inspect", json={
+        "session_id": sid, "location_id": loc, "hotspot_id": hotspot})
+    return client.post("/api/evidence/file", json={
+        "session_id": sid, "location_id": loc, "hotspot_id": hotspot})
+
+
 def test_session_start_gives_isolated_dataset(client):
     a = client.post("/api/session/start").json()["state"]
     b = client.post("/api/session/start").json()["state"]
@@ -95,21 +103,29 @@ def test_session_start_gives_isolated_dataset(client):
     assert len(a["locations"]) == 6
 
 
-def test_inspect_evidence_remembers_and_returns_delta(client):
+def test_inspect_previews_and_filing_remembers(client):
     sid = start(client)
     r = client.post("/api/evidence/inspect", json={
         "session_id": sid, "location_id": "hotel_suite", "hotspot_id": "safe_note"})
     assert r.status_code == 200
     body = r.json()
+    # inspecting alone remembers NOTHING
     assert {f["fact_id"] for f in body["facts"]} == {"f13", "f14"}
-    assert len(body["graph_delta"]["added_nodes"]) == 4  # 2 nodes per fact
-    assert body["hud"]["memories"] == 2
+    assert all(not f["already_filed"] for f in body["facts"])
+    assert body["hud"]["memories"] == 0
 
-    # re-inspecting is free — no new facts, no delta
-    r2 = client.post("/api/evidence/inspect", json={
+    # filing commits the facts to Cognee
+    r2 = client.post("/api/evidence/file", json={
         "session_id": sid, "location_id": "hotel_suite", "hotspot_id": "safe_note"})
-    assert r2.json()["facts"] == []
-    assert r2.json()["graph_delta"] is None
+    assert {f["fact_id"] for f in r2.json()["facts"]} == {"f13", "f14"}
+    assert len(r2.json()["graph_delta"]["added_nodes"]) == 4
+    assert r2.json()["hud"]["memories"] == 2
+    assert r2.json()["hud"]["key_found"] == 1  # f13 is a key fact
+
+    # re-filing is free
+    r3 = client.post("/api/evidence/file", json={
+        "session_id": sid, "location_id": "hotel_suite", "hotspot_id": "safe_note"})
+    assert r3.json()["facts"] == []
 
 
 def test_talk_reveals_facts_and_lou_lies_until_confronted(client):
@@ -120,8 +136,7 @@ def test_talk_reveals_facts_and_lou_lies_until_confronted(client):
     assert r.json()["facts"][0]["fact_id"] == "f08"
 
     # find the receipt, then Lou confesses f07 on the next exchange
-    client.post("/api/evidence/inspect", json={
-        "session_id": sid, "location_id": "pawn_shop", "hotspot_id": "pawn_receipt"})
+    collect(client, sid, "pawn_shop", "pawn_receipt")
     r2 = client.post("/api/character/talk", json={
         "session_id": sid, "character_id": "lucky_lou", "message": "Explain this receipt."})
     assert r2.json()["facts"] == []  # f07 already discovered via the receipt
@@ -131,8 +146,7 @@ def test_talk_reveals_facts_and_lou_lies_until_confronted(client):
 
 def test_forget_removes_nodes_and_solve_tracks_it(client):
     sid = start(client)
-    client.post("/api/evidence/inspect", json={
-        "session_id": sid, "location_id": "hotel_suite", "hotspot_id": "lipstick_napkin"})
+    collect(client, sid, "hotel_suite", "lipstick_napkin")
     r = client.post("/api/memory/forget", json={"session_id": sid, "fact_id": "rh1"})
     assert r.status_code == 200
     assert r.json()["graph_delta"]["removed_node_ids"]
@@ -145,8 +159,7 @@ def test_forget_removes_nodes_and_solve_tracks_it(client):
 
 def test_memify_tags_new_nodes_as_inferences(client):
     sid = start(client)
-    client.post("/api/evidence/inspect", json={
-        "session_id": sid, "location_id": "casino_floor", "hotspot_id": "casino_chip_receipt"})
+    collect(client, sid, "casino_floor", "casino_chip_receipt")
     client.get("/api/graph", params={"session_id": sid})  # sync snapshot
     r = client.post("/api/memory/memify", json={"session_id": sid})
     added = r.json()["graph_delta"]["added_nodes"]
@@ -157,8 +170,7 @@ def test_memify_tags_new_nodes_as_inferences(client):
 def test_memify_derives_inferences_when_premises_known(client):
     sid = start(client)
     # safe_note yields f13 + f14 — the premises of derivable d2
-    client.post("/api/evidence/inspect", json={
-        "session_id": sid, "location_id": "hotel_suite", "hotspot_id": "safe_note"})
+    collect(client, sid, "hotel_suite", "safe_note")
     r = client.post("/api/memory/memify", json={"session_id": sid})
     inferred = r.json()["inferences"]
     assert [i["fact_id"] for i in inferred] == ["d2"]
@@ -171,8 +183,7 @@ def test_memify_derives_inferences_when_premises_known(client):
 
 def test_recall_returns_answer_and_citations(client):
     sid = start(client)
-    client.post("/api/evidence/inspect", json={
-        "session_id": sid, "location_id": "casino_floor", "hotspot_id": "casino_chip_receipt"})
+    collect(client, sid, "casino_floor", "casino_chip_receipt")
     r = client.post("/api/memory/recall", json={"session_id": sid, "query": "what happened?"})
     assert r.status_code == 200
     assert "answer" in r.json()
@@ -186,8 +197,7 @@ def test_solve_flow_win_and_contamination(client):
         ("pawn_shop", "pawn_receipt"), ("chapel", "chapel_polaroid"),
     ]
     for loc, hotspot in key_hotspots:
-        client.post("/api/evidence/inspect", json={
-            "session_id": sid, "location_id": loc, "hotspot_id": hotspot})
+        collect(client, sid, loc, hotspot)
     for char, n in [("rosa", 5), ("rev_sonny", 3), ("chad", 3), ("lucky_lou", 2)]:
         for _ in range(n):
             client.post("/api/character/talk", json={
@@ -209,8 +219,7 @@ def test_solve_flow_win_and_contamination(client):
 
 def test_reset_creates_fresh_session_and_drops_dataset(client):
     sid = start(client)
-    client.post("/api/evidence/inspect", json={
-        "session_id": sid, "location_id": "hotel_suite", "hotspot_id": "safe_note"})
+    collect(client, sid, "hotel_suite", "safe_note")
     r = client.post("/api/session/reset", json={"session_id": sid})
     new_state = r.json()["state"]
     assert new_state["session_id"] != sid

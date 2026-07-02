@@ -60,19 +60,39 @@ const Scene = (() => {
     }
   }
 
-  function showEvidenceModal(hotspot, facts) {
-    document.getElementById("evidence-icon").textContent = EVIDENCE_ICONS[hotspot.id] || "🔎";
+  function showEvidenceModal(hotspot, facts, onFile) {
+    const img = (manifest.evidence || {})[hotspot.id];
+    const icon = document.getElementById("evidence-icon");
+    icon.innerHTML = img
+      ? `<img src="${img}" alt="" style="width:190px;height:190px;object-fit:cover;border-radius:6px;border:1px solid var(--cyan)">`
+      : (EVIDENCE_ICONS[hotspot.id] || "🔎");
     document.getElementById("evidence-name").textContent = hotspot.name;
     document.getElementById("evidence-desc").textContent = hotspot.description;
     const factsEl = document.getElementById("evidence-facts");
     factsEl.innerHTML = "";
+    const unfiled = facts.filter(f => !f.already_filed);
     facts.forEach((f, i) => {
       const chip = document.createElement("div");
-      chip.className = "fact-chip";
+      chip.className = "fact-chip" + (f.already_filed ? " filed" : "");
       chip.style.animationDelay = `${i * 0.25}s`;
       chip.textContent = f.text;
       factsEl.appendChild(chip);
     });
+
+    const fileBtn = document.getElementById("evidence-file");
+    const closeBtn = document.getElementById("evidence-close");
+    if (unfiled.length) {
+      fileBtn.classList.remove("hidden");
+      closeBtn.textContent = "LEAVE IT";
+      fileBtn.onclick = () => {
+        document.getElementById("modal-backdrop").classList.add("hidden");
+        onFile && onFile();
+      };
+    } else {
+      fileBtn.classList.add("hidden");
+      closeBtn.textContent = facts.length ? "ALREADY ON FILE" : "NOTED";
+      fileBtn.onclick = null;
+    }
     document.getElementById("modal-backdrop").classList.remove("hidden");
   }
 
@@ -82,5 +102,13 @@ const Scene = (() => {
     if (e.target.id === "modal-backdrop") e.target.classList.add("hidden");
   };
 
-  return { loadManifest, render, showEvidenceModal };
+  function showBubble(text) {
+    const bubble = document.getElementById("speech-bubble");
+    bubble.textContent = text.length > 220 ? text.slice(0, 217) + "…" : text;
+    bubble.classList.remove("hidden");
+    clearTimeout(showBubble._t);
+    showBubble._t = setTimeout(() => bubble.classList.add("hidden"), 9000);
+  }
+
+  return { loadManifest, render, showEvidenceModal, showBubble };
 })();

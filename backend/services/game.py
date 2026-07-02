@@ -5,7 +5,7 @@ session bookkeeping -> fresh graph snapshot -> incremental graph_delta.
 """
 from __future__ import annotations
 
-from backend.models.facts import load_ground_truth
+from backend.models.facts import load_ground_truth  # noqa: F401 (used across helpers)
 from backend.models.world import load_world
 from backend.services import cognee_client
 from backend.services.session_store import Session, graph_delta
@@ -115,12 +115,16 @@ def format_delta(delta: dict, session: Session) -> dict:
 
 
 def hud_counts(session: Session) -> dict:
-    """Lifecycle usage counters for the HUD (reinforces API usage to judges)."""
+    """Lifecycle usage counters + case progress for the HUD."""
+    truth = load_ground_truth()
+    key_ids = truth.key_fact_ids
     return {
         "memories": len(session.active_fact_ids),
         "inferences": len(session.inference_node_ids),
         "forgotten": len(session.forgotten),
         "memify_runs": session.memify_runs,
+        "key_found": len(session.active_fact_ids & key_ids),
+        "key_total": len(key_ids),
     }
 
 

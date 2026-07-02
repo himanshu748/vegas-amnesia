@@ -11,6 +11,7 @@ const Main = (() => {
   // ---------- boot ----------
   const BOOT_LINES = [
     "HAL-9001 BIOS v6.66 … OK",
+    "designation: HAL-9001 — Dev's personal AI assistant",
     "mounting /memory/graph … FAILED",
     "fsck: memory integrity 3% — 97% of last night unrecoverable",
     "owner: DEV — status: UNRESPONSIVE (snoring)",
@@ -28,6 +29,7 @@ const Main = (() => {
     await new Promise(r => setTimeout(r, 900));
     $("boot-screen").style.display = "none";
     $("topbar").classList.remove("hidden");
+    $("objective").classList.remove("hidden");
     $("game").classList.remove("hidden");
     startClock();
   }
@@ -60,6 +62,7 @@ const Main = (() => {
     $("hud-inferences").textContent = hud.inferences;
     $("hud-forgotten").textContent = hud.forgotten;
     $("hud-memify").textContent = hud.memify_runs;
+    if (hud.key_total) $("obj-count").textContent = `${hud.key_found}/${hud.key_total}`;
   }
 
   // ---------- locations ----------
@@ -87,11 +90,21 @@ const Main = (() => {
     el.classList.add("inspected");
     try {
       const resp = await api.inspect(state.session_id, locationId, hotspotId);
-      Scene.showEvidenceModal(resp.hotspot, resp.facts);
+      Scene.showEvidenceModal(resp.hotspot, resp.facts, () =>
+        fileEvidence(locationId, hotspotId, resp.facts.length));
+      updateHud(resp.hud);
+    } catch (err) { toast(err.message, "error"); }
+  }
+
+  // Non-blocking: the modal closes instantly, memories land when Cognee is done.
+  async function fileEvidence(locationId, hotspotId, count) {
+    toast(`🗂 filing evidence… HAL is committing ${count} memor${count === 1 ? "y" : "ies"}`);
+    try {
+      const resp = await api.fileEvidence(state.session_id, locationId, hotspotId);
       if (resp.facts.length) {
         Graph.registerFacts(resp.facts);
         const delta = Graph.applyDelta(resp.graph_delta);
-        toast(`+${resp.facts.length} memories · graph +${delta.nodes} nodes`);
+        toast(`+${resp.facts.length} memories remembered · graph +${delta.nodes} nodes`);
       }
       updateHud(resp.hud);
     } catch (err) { toast(err.message, "error"); }

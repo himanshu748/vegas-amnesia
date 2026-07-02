@@ -38,6 +38,7 @@ const Chat = (() => {
       const resp = await api.talk(Main.sessionId(), currentCharacter, message);
       thinking.remove();
       push("character", resp.line);
+      Scene.showBubble(resp.line);
       if (resp.facts.length) {
         Graph.registerFacts(resp.facts);
         Main.toast(`+${resp.facts.length} memory from testimony`, "");
