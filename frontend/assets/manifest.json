@@ -1,0 +1,19 @@
+{
+  "characters": {
+    "rosa": "assets/characters/rosa.jpg",
+    "lucky_lou": "assets/characters/lucky_lou.jpg",
+    "rev_sonny": "assets/characters/rev_sonny.jpg",
+    "chad": "assets/characters/chad.jpg"
+  },
+  "locations": {
+    "hotel_suite": "assets/locations/hotel_suite.jpg",
+    "casino_floor": "assets/locations/casino_floor.jpg",
+    "rosas_bar": "assets/locations/rosas_bar.jpg",
+    "chapel": "assets/locations/chapel.jpg",
+    "pawn_shop": "assets/locations/pawn_shop.jpg",
+    "parking_garage": "assets/locations/parking_garage.jpg"
+  },
+  "evidence": {
+    "_comment": "Evidence items use styled CSS placeholders (icon + label). Add image paths here to override — no code changes needed."
+  }
+}
