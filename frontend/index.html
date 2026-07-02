@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VEGAS AMNESIA — HAL-9001</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Monoton&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<script src="https://cdn.jsdelivr.net/npm/cytoscape@3.30.2/dist/cytoscape.min.js"></script>
+</head>
+<body>
+
+<!-- BOOT SEQUENCE -->
+<div id="boot-screen">
+  <video id="boot-video" style="display:none" muted playsinline></video>
+  <div id="boot-text">
+    <pre id="boot-log"></pre>
+    <div id="boot-title">MEMORY CORRUPTED</div>
+    <div id="boot-sub">HAL-9001 // PERSONAL ASSISTANT UNIT // REBOOTING…</div>
+  </div>
+</div>
+
+<!-- TOP BAR -->
+<header id="topbar" class="hidden">
+  <div id="brand">HAL-9001<span class="dim">//VEGAS AMNESIA</span></div>
+  <nav id="location-tabs"></nav>
+  <div id="clock" title="Priya arrives at noon">06:00 AM</div>
+  <button id="btn-memify" class="neon-btn purple" title="Run memify — consolidate memories into inferences">🧠 CONSOLIDATE</button>
+  <button id="btn-solve" class="neon-btn pink" title="Answer the final question">🎯 SOLVE THE NIGHT</button>
+</header>
+
+<main id="game" class="hidden">
+  <!-- SCENE (left 55%) -->
+  <section id="scene">
+    <div id="scene-backdrop"></div>
+    <div id="scene-title"></div>
+    <div id="scene-desc"></div>
+    <div id="hotspots"></div>
+    <div id="character-dock" class="hidden">
+      <img id="character-portrait" alt="">
+      <div id="character-name"></div>
+    </div>
+    <!-- chat drawer -->
+    <div id="chat-drawer" class="hidden">
+      <div id="chat-header"><span id="chat-title"></span><button id="chat-close">✕</button></div>
+      <div id="chat-log"></div>
+      <form id="chat-form">
+        <input id="chat-input" autocomplete="off" placeholder="Ask them something…">
+        <button class="neon-btn cyan" type="submit">ASK</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- MEMORY GRAPH (right 45%) -->
+  <section id="memory-panel">
+    <div id="graph-hud">
+      <span class="hud-stat"><b id="hud-memories">0</b> memories</span>
+      <span class="hud-stat purple"><b id="hud-inferences">0</b> inferences</span>
+      <span class="hud-stat red"><b id="hud-forgotten">0</b> forgotten</span>
+      <span class="hud-stat dim"><b id="hud-memify">0</b> memify runs</span>
+    </div>
+    <div id="graph"></div>
+    <div class="scanlines"></div>
+    <form id="recall-form">
+      <input id="recall-input" autocomplete="off" placeholder="ASK HAL — recall anything…">
+      <button class="neon-btn cyan" type="submit">RECALL</button>
+    </form>
+    <div id="recall-answer" class="hidden"></div>
+  </section>
+</main>
+
+<!-- EVIDENCE MODAL -->
+<div id="modal-backdrop" class="hidden">
+  <div id="evidence-modal">
+    <div id="evidence-icon"></div>
+    <h2 id="evidence-name"></h2>
+    <p id="evidence-desc"></p>
+    <div id="evidence-facts"></div>
+    <button id="evidence-close" class="neon-btn cyan">FILE IT</button>
+  </div>
+</div>
+
+<!-- FORGET CONTEXT MENU -->
+<div id="forget-menu" class="hidden"><button id="forget-btn">🗑 FORGET THIS MEMORY</button></div>
+
+<!-- ENDING SCREEN -->
+<div id="ending-screen" class="hidden">
+  <h1 id="ending-verdict-title"></h1>
+  <p id="ending-verdict"></p>
+  <div id="ending-columns">
+    <div><h3>RECONSTRUCTED TIMELINE</h3><ol id="ending-timeline"></ol></div>
+    <div><h3>HAL'S ANSWER</h3><p id="ending-hal"></p><div id="ending-stats"></div></div>
+  </div>
+  <button id="ending-close" class="neon-btn cyan">KEEP INVESTIGATING</button>
+</div>
+
+<!-- DEBUG OVERLAY (backtick) -->
+<div id="debug-overlay" class="hidden">
+  <h3>COGNEE LIFECYCLE CALLS <span class="dim">(live from /api/debug/cognee-log)</span></h3>
+  <table id="debug-table"><thead><tr><th>op</th><th>dataset</th><th>ms</th><th>ok</th><th>detail</th></tr></thead><tbody></tbody></table>
+</div>
+
+<div id="toast-stack"></div>
+
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="js/graph.js"></script>
+<script src="js/scene.js"></script>
+<script src="js/chat.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
