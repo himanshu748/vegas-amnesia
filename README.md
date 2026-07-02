@@ -1,3 +1,13 @@
+---
+title: Vegas Amnesia
+emoji: 🎰
+colorFrom: pink
+colorTo: purple
+sdk: docker
+app_port: 7860
+pinned: false
+---
+
 # Vegas Amnesia 🎰🧠
 
 A detective game where **you are an AI agent that woke up with a wiped memory**.
