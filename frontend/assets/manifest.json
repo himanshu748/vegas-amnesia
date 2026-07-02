@@ -14,6 +14,19 @@
     "parking_garage": "assets/locations/parking_garage.jpg"
   },
   "evidence": {
-    "_comment": "Evidence items use styled CSS placeholders (icon + label). Add image paths here to override — no code changes needed."
+    "dead_phone": "assets/evidence/dead_phone.webp",
+    "safe_note": "assets/evidence/safe_note.webp",
+    "ice_bucket_cash": "assets/evidence/ice_bucket_cash.webp",
+    "room_service_receipt": "assets/evidence/room_service_receipt.webp",
+    "lipstick_napkin": "assets/evidence/lipstick_napkin.webp",
+    "casino_chip_receipt": "assets/evidence/casino_chip_receipt.webp",
+    "stray_pawn_ticket": "assets/evidence/stray_pawn_ticket.webp",
+    "security_report": "assets/evidence/security_report.webp",
+    "bar_polaroid": "assets/evidence/bar_polaroid.webp",
+    "bar_tab": "assets/evidence/bar_tab.webp",
+    "chapel_polaroid": "assets/evidence/chapel_polaroid.webp",
+    "pawn_receipt": "assets/evidence/pawn_receipt.webp",
+    "parking_stub": "assets/evidence/parking_stub.webp",
+    "stray_keycard": "assets/evidence/stray_keycard.webp"
   }
 }
