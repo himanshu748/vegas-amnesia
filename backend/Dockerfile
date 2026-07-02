@@ -7,6 +7,7 @@ RUN pip install --no-cache-dir -r /app/backend/requirements.txt
 
 COPY backend /app/backend
 COPY story /app/story
+COPY frontend /app/frontend
 
 EXPOSE 7860
 CMD ["uvicorn", "backend.app:app", "--host", "0.0.0.0", "--port", "7860"]
