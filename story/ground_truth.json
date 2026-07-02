@@ -1,0 +1,267 @@
+{
+  "case": {
+    "title": "Vegas Amnesia",
+    "final_question": "What happened last night, and where is the wedding ring?",
+    "owner": "Dev",
+    "fiancee": "Priya",
+    "deadline": "12:00"
+  },
+  "facts": [
+    {
+      "id": "f01",
+      "text": "Dev started the night at the Neon Mirage casino bar at 9 PM.",
+      "source": {"type": "testimony", "ref": "rosa"},
+      "entities": ["Dev", "Neon Mirage casino bar"],
+      "time_hint": "21:00",
+      "is_red_herring": false,
+      "key": true
+    },
+    {
+      "id": "f02",
+      "text": "Dev met the Kowalski bachelor party group at the casino bar around 9:30 PM.",
+      "source": {"type": "testimony", "ref": "rosa"},
+      "entities": ["Dev", "Kowalski bachelor party", "casino bar"],
+      "time_hint": "21:30",
+      "is_red_herring": false,
+      "key": false
+    },
+    {
+      "id": "f03",
+      "text": "Bartender Rosa served Dev and the bachelor party group all evening.",
+      "source": {"type": "testimony", "ref": "rosa"},
+      "entities": ["Rosa", "Dev", "Kowalski bachelor party"],
+      "time_hint": "21:30",
+      "is_red_herring": false,
+      "key": false
+    },
+    {
+      "id": "f04",
+      "text": "Dev won 8,000 dollars playing blackjack at 11 PM.",
+      "source": {"type": "evidence", "ref": "casino_chip_receipt"},
+      "entities": ["Dev", "blackjack", "8000 dollars"],
+      "time_hint": "23:00",
+      "is_red_herring": false,
+      "key": true
+    },
+    {
+      "id": "f05",
+      "text": "Dev bought celebratory drinks for the whole bar at 11:30 PM.",
+      "source": {"type": "testimony", "ref": "rosa"},
+      "entities": ["Dev", "casino bar"],
+      "time_hint": "23:30",
+      "is_red_herring": false,
+      "key": false
+    },
+    {
+      "id": "f06",
+      "text": "Rosa cut the group off at midnight and called them a cab toward the chapel district.",
+      "source": {"type": "testimony", "ref": "rosa"},
+      "entities": ["Rosa", "cab", "chapel district"],
+      "time_hint": "00:00",
+      "is_red_herring": false,
+      "key": false
+    },
+    {
+      "id": "f07",
+      "text": "Dev bought a vintage gold watch at Lucky Lou's Pawn Shop at 1 AM.",
+      "source": {"type": "evidence", "ref": "pawn_receipt"},
+      "entities": ["Dev", "vintage gold watch", "Lucky Lou's Pawn Shop"],
+      "time_hint": "01:00",
+      "is_red_herring": false,
+      "key": true
+    },
+    {
+      "id": "f08",
+      "text": "Lucky Lou claimed Dev never came into his shop last night.",
+      "source": {"type": "testimony", "ref": "lucky_lou"},
+      "entities": ["Lucky Lou", "Dev", "Lucky Lou's Pawn Shop"],
+      "time_hint": "01:00",
+      "is_red_herring": false,
+      "key": true,
+      "note": "The lie — contradicts f07's receipt. Catching it makes Lou talk."
+    },
+    {
+      "id": "f09",
+      "text": "Dev's phone battery died at 1:30 AM, so there are no photos from later in the night.",
+      "source": {"type": "evidence", "ref": "dead_phone"},
+      "entities": ["Dev", "phone"],
+      "time_hint": "01:30",
+      "is_red_herring": false,
+      "key": false
+    },
+    {
+      "id": "f10",
+      "text": "Dev and best man Marcus held an impromptu ceremony at the Little Neon Chapel at 2 AM.",
+      "source": {"type": "evidence", "ref": "chapel_polaroid"},
+      "entities": ["Dev", "Marcus", "Little Neon Chapel"],
+      "time_hint": "02:00",
+      "is_red_herring": false,
+      "key": true
+    },
+    {
+      "id": "f11",
+      "text": "The chapel ceremony was a novelty friendship ceremony, not a real wedding.",
+      "source": {"type": "testimony", "ref": "rev_sonny"},
+      "entities": ["friendship ceremony", "Little Neon Chapel"],
+      "time_hint": "02:00",
+      "is_red_herring": false,
+      "key": true
+    },
+    {
+      "id": "f12",
+      "text": "The ring on Dev's finger is a 15 dollar novelty ring from the chapel gift shop.",
+      "source": {"type": "testimony", "ref": "rev_sonny"},
+      "entities": ["novelty ring", "chapel gift shop"],
+      "time_hint": "02:15",
+      "is_red_herring": false,
+      "key": true
+    },
+    {
+      "id": "f13",
+      "text": "Dev put Priya's real engagement ring in the hotel room safe at 8:45 PM, before going out.",
+      "source": {"type": "evidence", "ref": "safe_note"},
+      "entities": ["engagement ring", "hotel room safe", "Dev"],
+      "time_hint": "20:45",
+      "is_red_herring": false,
+      "key": true
+    },
+    {
+      "id": "f14",
+      "text": "The hotel safe code is Priya's birthday, 0214.",
+      "source": {"type": "evidence", "ref": "safe_note"},
+      "entities": ["hotel room safe", "Priya"],
+      "time_hint": "20:45",
+      "is_red_herring": false,
+      "key": false
+    },
+    {
+      "id": "f15",
+      "text": "The group took the rented convertible to the rooftop parking garage at 3 AM.",
+      "source": {"type": "evidence", "ref": "parking_stub"},
+      "entities": ["convertible", "rooftop parking garage"],
+      "time_hint": "03:00",
+      "is_red_herring": false,
+      "key": false
+    },
+    {
+      "id": "f16",
+      "text": "Dev gave the vintage gold watch to Marcus as a friendship gift at 3:30 AM.",
+      "source": {"type": "testimony", "ref": "chad"},
+      "entities": ["Dev", "Marcus", "vintage gold watch"],
+      "time_hint": "03:30",
+      "is_red_herring": false,
+      "key": true
+    },
+    {
+      "id": "f17",
+      "text": "Dev ordered room service at 4 AM: a stack of twelve pancakes.",
+      "source": {"type": "evidence", "ref": "room_service_receipt"},
+      "entities": ["Dev", "room service", "pancakes"],
+      "time_hint": "04:00",
+      "is_red_herring": false,
+      "key": false
+    },
+    {
+      "id": "f18",
+      "text": "Chad from the bachelor party crashed on the sofa in Dev's suite.",
+      "source": {"type": "evidence", "ref": "chads_shoes"},
+      "entities": ["Chad", "Dev's suite"],
+      "time_hint": "04:15",
+      "is_red_herring": false,
+      "key": false
+    },
+    {
+      "id": "f19",
+      "text": "Dev passed out in the suite at 4:30 AM still wearing the novelty ring.",
+      "source": {"type": "testimony", "ref": "chad"},
+      "entities": ["Dev", "novelty ring", "Dev's suite"],
+      "time_hint": "04:30",
+      "is_red_herring": false,
+      "key": false
+    },
+    {
+      "id": "f20",
+      "text": "The remaining blackjack winnings are stuffed inside the ice bucket in Dev's suite.",
+      "source": {"type": "evidence", "ref": "ice_bucket_cash"},
+      "entities": ["winnings", "ice bucket", "Dev's suite"],
+      "time_hint": "04:20",
+      "is_red_herring": false,
+      "key": true
+    }
+  ],
+  "red_herrings": [
+    {
+      "id": "rh1",
+      "text": "A lipstick-marked napkin in the suite suggests Dev had a romantic encounter.",
+      "source": {"type": "evidence", "ref": "lipstick_napkin"},
+      "entities": ["lipstick napkin", "Dev's suite"],
+      "time_hint": null,
+      "is_red_herring": true,
+      "debunked_by": "rosa",
+      "truth": "The napkin came from a bridal shower at the next table; Rosa saw a bridesmaid tuck it into Chad's jacket as a joke."
+    },
+    {
+      "id": "rh2",
+      "text": "A pawn ticket for a diamond ring was found on the casino floor near Dev's blackjack table.",
+      "source": {"type": "evidence", "ref": "stray_pawn_ticket"},
+      "entities": ["pawn ticket", "diamond ring", "casino floor"],
+      "time_hint": null,
+      "is_red_herring": true,
+      "debunked_by": "lucky_lou",
+      "truth": "Lou's ledger shows the ticket belongs to a Ms. Delgado — no connection to Dev."
+    },
+    {
+      "id": "rh3",
+      "text": "Chad left Dev a voicemail shouting 'congratulations on your wedding!'",
+      "source": {"type": "evidence", "ref": "chad_voicemail"},
+      "entities": ["Chad", "voicemail", "wedding"],
+      "time_hint": "02:30",
+      "is_red_herring": true,
+      "debunked_by": "rev_sonny",
+      "truth": "Chad was hammered and conflated the friendship ceremony with a wedding."
+    },
+    {
+      "id": "rh4",
+      "text": "A casino security report says a man in Dev's jacket dove into the lobby fountain at 1 AM.",
+      "source": {"type": "evidence", "ref": "security_report"},
+      "entities": ["security report", "fountain", "jacket"],
+      "time_hint": "01:00",
+      "is_red_herring": true,
+      "debunked_by": "pawn_receipt",
+      "truth": "Dev was at Lucky Lou's at 1 AM (f07); the fountain swimmer was a groomsman who borrowed Dev's jacket."
+    },
+    {
+      "id": "rh5",
+      "text": "A keycard for room 2412 was in Dev's pocket, hinting he was in someone else's room.",
+      "source": {"type": "evidence", "ref": "stray_keycard"},
+      "entities": ["keycard", "room 2412"],
+      "time_hint": null,
+      "is_red_herring": true,
+      "debunked_by": "chad",
+      "truth": "2412 is Marcus's room; Marcus handed Dev the keycard to hold during the ceremony."
+    }
+  ],
+  "derivable": [
+    {
+      "id": "d1",
+      "text": "Dev did not actually get married last night; the ceremony was symbolic.",
+      "derived_from": ["f10", "f11", "f12"]
+    },
+    {
+      "id": "d2",
+      "text": "The real engagement ring was never lost — it has been in the hotel safe since before the night began.",
+      "derived_from": ["f13", "f14"]
+    },
+    {
+      "id": "d3",
+      "text": "Lucky Lou lied about Dev visiting his shop.",
+      "derived_from": ["f07", "f08"]
+    },
+    {
+      "id": "d4",
+      "text": "Dev's blackjack winnings paid for the watch, and most of the rest is still in the suite.",
+      "derived_from": ["f04", "f07", "f20"]
+    }
+  ],
+  "solution_summary": "Dev had a wild but innocent night: won $8,000 at blackjack, bought a vintage watch and gifted it to Marcus, held a novelty friendship ceremony at the chapel (the 'wedding ring' is a $15 gift-shop prop), and the real engagement ring sat in the hotel safe (code 0214) the entire time. The cash is in the ice bucket."
+}
