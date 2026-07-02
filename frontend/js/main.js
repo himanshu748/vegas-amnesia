@@ -179,7 +179,17 @@ const Main = (() => {
     try {
       const resp = await api.recall(state.session_id, query);
       const first = Array.isArray(resp.answer) ? resp.answer[0] : resp.answer;
-      box.textContent = (first && (first.text || first.search_result)) || JSON.stringify(first);
+      const raw = (first && (first.text || first.search_result)) || JSON.stringify(first);
+      const [answer, evidence] = String(raw).split(/\n+Evidence:/);
+      box.innerHTML = "";
+      box.append(Object.assign(document.createElement("div"), { textContent: answer.trim() }));
+      if (evidence) {
+        const det = document.createElement("details");
+        det.innerHTML = `<summary style="cursor:pointer;color:var(--dim)">evidence (${(evidence.match(/data_id/g) || []).length} sources)</summary>`;
+        det.append(Object.assign(document.createElement("pre"),
+          { textContent: evidence.trim(), style: "white-space:pre-wrap;color:var(--dim);font-size:10px;margin-top:6px" }));
+        box.append(det);
+      }
       Graph.citeNodes(resp.cited_node_ids || []);
       updateHud(resp.hud);
     } catch (err) { box.textContent = `recall failed: ${err.message}`; }

@@ -65,7 +65,10 @@ const Graph = (() => {
   }
 
   function relayout() {
-    const layout = cy.layout({ name: "cose", animate: true, animationDuration: 600, padding: 20 });
+    const layout = cy.layout({
+      name: "cose", animate: true, animationDuration: 600, padding: 20,
+      idealEdgeLength: 60, nodeRepulsion: 8000, gravity: 40, nodeOverlap: 12,
+    });
     layout.one("layoutstop", () => cy.animate({ fit: { padding: 30 }, duration: 250 }));
     layout.run();
   }
