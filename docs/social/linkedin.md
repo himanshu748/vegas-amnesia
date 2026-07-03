@@ -1,6 +1,6 @@
 # LinkedIn post
 
-Demo: https://youtu.be/SpW38DW5YuM  (or upload `docs/demo.mp4` natively for in-feed autoplay).
+Demo: https://youtu.be/MM1nnQxJARo  (or upload `docs/demo.mp4` natively for in-feed autoplay).
 
 ---
 

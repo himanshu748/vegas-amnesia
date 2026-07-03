@@ -1,6 +1,6 @@
 # X / Twitter thread
 
-Attach `docs/demo.mp4` natively for autoplay, OR paste the YouTube link: https://youtu.be/SpW38DW5YuM
+Attach `docs/demo.mp4` natively for autoplay, OR paste the YouTube link: https://youtu.be/MM1nnQxJARo
 Tag @cognee_ and @WeMakeDevs.
 
 ---

@@ -18,7 +18,7 @@ pinned: false
 `remember → recall → memify → forget` — IS the gameplay,
 visualized as a live 3D knowledge graph.**
 
-[**▶ PLAY IT NOW**](https://vegas-amnesia.vercel.app) · [🎬 Watch the demo (YouTube)](https://youtu.be/SpW38DW5YuM) · [🔬 Cognee deep-dive cut](docs/cognee-deep-dive.mp4) · [🤗 HF Space mirror](https://himanshukumarjha-vegas-amnesia.hf.space)
+[**▶ PLAY IT NOW**](https://vegas-amnesia.vercel.app) · [🎬 Watch the demo (YouTube)](https://youtu.be/MM1nnQxJARo) · [🔬 Cognee deep-dive cut](docs/cognee-deep-dive.mp4) · [🤗 HF Space mirror](https://himanshukumarjha-vegas-amnesia.hf.space)
 
 *WeMakeDevs × Cognee — "The Hangover Part AI" hackathon · Cognee Cloud track*
 
@@ -115,7 +115,7 @@ an access code (in our submission notes) bypasses limits for judges.
 
 ## Demo videos
 
-- 🎬 **[Watch on YouTube](https://youtu.be/SpW38DW5YuM)** — 80s, narrated: full gameplay + all four lifecycle stages
+- 🎬 **[Watch on YouTube](https://youtu.be/MM1nnQxJARo)** — 63s, narrated: full gameplay + all four lifecycle stages
 - [`docs/demo.mp4`](docs/demo.mp4) — the same cut, in-repo
 - [`docs/cognee-deep-dive.mp4`](docs/cognee-deep-dive.mp4) — 44s, endpoint-level captions (no narration, talk over it)
 - Fully reproducible: `record_demo.mjs` (scripted playthrough) → `make_cards.mjs` (HTML-rendered neon cards) → `build_demo_v2.sh` → `make_narration.sh` (neural TTS) → `mux_audio.sh`
