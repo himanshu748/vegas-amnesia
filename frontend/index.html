@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>VEGAS AMNESIA — HAL-9001</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Monoton&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=12">
-<script src="js/vendor/graph3d.bundle.js?v=12"></script>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&family=Monoton&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css?v=13">
+<script src="js/vendor/graph3d.bundle.js?v=13"></script>
 </head>
 <body>
 
@@ -27,6 +27,7 @@
   <nav id="location-tabs"></nav>
   <div id="clock" title="Priya arrives at noon">06:00 AM</div>
   <button id="btn-memify" class="neon-btn purple" title="Cognee memify — HAL derives new inferences from what you've remembered">🧠 CONNECT THE DOTS</button>
+  <button id="btn-graph" class="neon-btn cyan" title="Open HAL's live memory graph">🕸 GRAPH <span class="gcount" id="btn-graph-count">0</span></button>
   <button id="btn-solve" class="neon-btn pink" title="Answer the final question">🎯 SOLVE THE NIGHT</button>
   <button id="btn-help" class="neon-btn" title="How to play">?</button>
 </header>
@@ -43,7 +44,7 @@
   <div id="howto-card">
     <h2>YOU ARE HAL-9001</h2>
     <p class="howto-sub">Dev's AI assistant. Your memory was wiped at 6 AM. Priya lands at noon.<br>
-    Everything you learn becomes a <b>living memory graph</b> — that's the panel on the right.</p>
+    Everything you learn becomes a <b>living memory graph</b> — open it anytime with <b>🕸 MEMORY GRAPH</b>.</p>
     <ol>
       <li><span>🔍</span><b>INVESTIGATE</b> — click the glowing rings in each location to examine evidence.</li>
       <li><span>🗂</span><b>FILE IT</b> — filing evidence stores it in HAL's memory. Careful: <i>not everything you find is true.</i></li>
@@ -80,8 +81,9 @@
     </div>
   </section>
 
-  <!-- MEMORY GRAPH (right 45%) -->
+  <!-- MEMORY GRAPH (slide-in overlay) -->
   <section id="memory-panel">
+    <button id="mempanel-close" title="Close graph">✕</button>
     <div id="graph-hud">
       <button id="hud-open-log" class="hud-stat hud-btn" title="Open the memory log — review & forget memories"><b id="hud-memories">0</b> memories 🗂</button>
       <span class="hud-stat purple"><b id="hud-inferences">0</b> inferences</span>
@@ -146,11 +148,11 @@
 
 <div id="toast-stack"></div>
 
-<script src="js/config.js?v=12"></script>
-<script src="js/api.js?v=12"></script>
-<script src="js/graph.js?v=12"></script>
-<script src="js/scene.js?v=12"></script>
-<script src="js/chat.js?v=12"></script>
-<script src="js/main.js?v=12"></script>
+<script src="js/config.js?v=13"></script>
+<script src="js/api.js?v=13"></script>
+<script src="js/graph.js?v=13"></script>
+<script src="js/scene.js?v=13"></script>
+<script src="js/chat.js?v=13"></script>
+<script src="js/main.js?v=13"></script>
 </body>
 </html>

@@ -63,8 +63,24 @@ const Main = (() => {
     $("hud-inferences").textContent = hud.inferences;
     $("hud-forgotten").textContent = hud.forgotten;
     $("hud-memify").textContent = hud.memify_runs;
+    $("btn-graph-count").textContent = hud.memories + hud.inferences;
     if (hud.key_total) $("obj-count").textContent = `${hud.key_found}/${hud.key_total}`;
+    // nudge the player to open the graph when it changed while closed
+    if (!graphOpen && (hud.memories + hud.inferences) > 0) $("btn-graph").classList.add("pulse");
   }
+
+  // ---------- memory graph panel toggle ----------
+  let graphOpen = false;
+  function openGraph() {
+    graphOpen = true;
+    $("memory-panel").classList.add("open");
+    $("btn-graph").classList.remove("pulse");
+    // three.js sized to a 0-width panel while hidden — resize once visible
+    setTimeout(() => { const g = Graph.instance && Graph.instance(); if (g) { g.width($("graph").clientWidth); g.height($("graph").clientHeight); g.zoomToFit && g.zoomToFit(500, 60); } }, 380);
+  }
+  function closeGraph() { graphOpen = false; $("memory-panel").classList.remove("open"); }
+  $("btn-graph").onclick = () => (graphOpen ? closeGraph() : openGraph());
+  $("mempanel-close").onclick = closeGraph;
 
   // ---------- locations ----------
   function renderTabs() {

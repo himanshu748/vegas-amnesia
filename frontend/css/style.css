@@ -6,13 +6,14 @@
   --purple: #b26bff;
   --amber: #ffb545;
   --red: #ff4757;
-  --text: #d8d4e8;
-  --dim: #6f6a85;
+  --text: #e4e0f2;
+  --dim: #7d7896;
   --mono: "JetBrains Mono", monospace;
+  --ui: "Chakra Petch", "JetBrains Mono", sans-serif;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
-html, body { height: 100%; background: var(--bg); color: var(--text); font-family: var(--mono); overflow: hidden; }
+html, body { height: 100%; background: var(--bg); color: var(--text); font-family: var(--ui); overflow: hidden; -webkit-font-smoothing: antialiased; }
 .hidden { display: none !important; }
 .dim { color: var(--dim); }
 
@@ -21,7 +22,8 @@ html, body { height: 100%; background: var(--bg); color: var(--text); font-famil
   position: fixed; inset: 0; z-index: 100; background: #050308;
   display: flex; align-items: center; justify-content: center; text-align: center;
 }
-#boot-log { color: var(--cyan); font-size: 12px; text-align: left; min-height: 140px; opacity: .7; }
+#boot-log { font-family: var(--mono); color: var(--cyan); font-size: 12px; text-align: left; min-height: 140px; opacity: .7; }
+#boot-sub, #brand, #clock, .loc-tab, #graph-hud, #debug-overlay, .fact-chip::before { font-family: var(--mono); }
 #boot-title {
   font-family: "Monoton", cursive; font-size: 64px; color: var(--pink);
   text-shadow: 0 0 18px var(--pink), 0 0 60px rgba(255,46,136,.5);
@@ -52,7 +54,9 @@ html, body { height: 100%; background: var(--bg); color: var(--text); font-famil
   font-family: var(--mono); font-size: 11px; font-weight: 700; letter-spacing: 1px;
   padding: 8px 12px; cursor: pointer; background: none; border-radius: 3px; color: var(--text);
   border: 1px solid var(--dim); transition: box-shadow .15s, transform .05s;
+  white-space: nowrap; flex-shrink: 0;
 }
+#topbar .loc-tab { flex-shrink: 1; }
 .neon-btn:active { transform: scale(.97); }
 .neon-btn.pink { border-color: var(--pink); color: var(--pink); }
 .neon-btn.pink:hover { box-shadow: 0 0 14px rgba(255,46,136,.5); }
@@ -74,9 +78,27 @@ html, body { height: 100%; background: var(--bg); color: var(--text); font-famil
 #objective .obj-hint { color: var(--dim); overflow: hidden; text-overflow: ellipsis; }
 
 /* ---------- layout ---------- */
-#game { display: flex; height: calc(100vh - 52px - 30px); }
-#scene { position: relative; width: 55%; overflow: hidden; }
-#memory-panel { position: relative; width: 45%; border-left: 1px solid #241d3a; background: var(--bg-panel); display: flex; flex-direction: column; }
+#game { position: relative; height: calc(100vh - 52px - 30px); }
+#scene { position: absolute; inset: 0; overflow: hidden; }
+/* memory graph slides in from the right on demand */
+#memory-panel {
+  position: absolute; top: 0; right: 0; bottom: 0; width: min(46%, 620px);
+  border-left: 1px solid #2c2447; background: rgba(15,12,26,.97); backdrop-filter: blur(4px);
+  display: flex; flex-direction: column; z-index: 8;
+  transform: translateX(100%); transition: transform .35s cubic-bezier(.6,0,.3,1);
+  box-shadow: -20px 0 50px rgba(0,0,0,.5);
+}
+#memory-panel.open { transform: translateX(0); }
+#mempanel-close {
+  position: absolute; top: 8px; left: 8px; z-index: 9; background: none; border: none;
+  color: var(--dim); font-size: 16px; cursor: pointer; font-family: var(--mono);
+}
+#mempanel-close:hover { color: var(--cyan); }
+/* topbar toggle with live count + pulse when there are unseen changes */
+#btn-graph { position: relative; }
+#btn-graph.pulse { animation: graphpulse 1.6s infinite; }
+@keyframes graphpulse { 0%,100% { box-shadow: 0 0 0 rgba(34,230,255,0); } 50% { box-shadow: 0 0 16px rgba(34,230,255,.7); } }
+#btn-graph .gcount { color: var(--cyan); font-weight: 700; }
 
 /* ---------- scene ---------- */
 #scene-backdrop { position: absolute; inset: 0; background-size: cover; background-position: center; filter: saturate(1.15); }
