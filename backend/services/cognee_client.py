@@ -170,30 +170,50 @@ async def remember(facts: list[dict | str], dataset: str) -> dict:
     the new item), so data_ids are resolved afterwards by item name — items
     are named by fact id, which is unique per dataset.
     """
+    normalized = [
+        fact if isinstance(fact, dict) else {"id": f"fact_{i}", "text": fact}
+        for i, fact in enumerate(facts)
+    ]
+
+    async def _ingest(fact: dict):
+        result = await _request(
+            "remember",
+            "POST",
+            "/api/v1/remember",
+            dataset,
+            data={"datasetName": dataset, "node_set": fact["id"]},
+            files={"data": (f"{fact['id']}.txt", fact["text"].encode("utf-8"), "text/plain")},
+        )
+        return {
+            "fact_id": fact["id"],
+            "text": fact["text"],
+            "data_id": None,  # filled from the listing below
+            "dataset_id": result.get("dataset_id"),
+        }
+
     results, failed = [], []
-    for i, fact in enumerate(facts):
-        if isinstance(fact, str):
-            fact = {"id": f"fact_{i}", "text": fact}
+    # First fact goes alone when the dataset is new (its remember creates the
+    # dataset); the rest ingest concurrently — this is where multi-fact
+    # evidence gets its speedup.
+    remaining = normalized
+    if normalized and dataset not in _DATASET_IDS:
+        head, remaining = normalized[0], normalized[1:]
         try:
-            result = await _request(
-                "remember",
-                "POST",
-                "/api/v1/remember",
-                dataset,
-                data={"datasetName": dataset, "node_set": fact["id"]},
-                files={"data": (f"{fact['id']}.txt", fact["text"].encode("utf-8"), "text/plain")},
-            )
-            results.append(
-                {
-                    "fact_id": fact["id"],
-                    "text": fact["text"],
-                    "data_id": None,  # filled from the listing below
-                    "dataset_id": result.get("dataset_id"),
-                }
-            )
+            results.append(await _ingest(head))
         except (CogneeError, httpx.HTTPError) as exc:
-            _PENDING_REMEMBERS.append((fact, dataset))
-            failed.append({"fact_id": fact["id"], "error": str(exc)})
+            _PENDING_REMEMBERS.append((head, dataset))
+            failed.append({"fact_id": head["id"], "error": str(exc)})
+
+    if remaining:
+        outcomes = await asyncio.gather(
+            *(_ingest(f) for f in remaining), return_exceptions=True
+        )
+        for fact, outcome in zip(remaining, outcomes):
+            if isinstance(outcome, Exception):
+                _PENDING_REMEMBERS.append((fact, dataset))
+                failed.append({"fact_id": fact["id"], "error": str(outcome)})
+            else:
+                results.append(outcome)
 
     if results:
         try:

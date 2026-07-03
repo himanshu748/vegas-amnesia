@@ -29,31 +29,46 @@ const Graph = (() => {
 
   const nodeColor = (n) =>
     n.dying ? COLORS.dying : n.cited ? COLORS.cited : COLORS[n.kind] || COLORS.memory;
+  // Points, not bubbles: small glowing dots; inferences slightly larger.
   const nodeSize = (n) =>
-    (n.kind === "plumbing" ? 2.5 : n.kind === "inference" ? 9 : 5.5) * (n.fresh ? 2 : 1) * (n.cited ? 2 : 1);
+    (n.kind === "plumbing" ? 0.9 : n.kind === "inference" ? 3.2 : 2.0) * (n.fresh ? 1.9 : 1) * (n.cited ? 2.2 : 1);
 
   function makeNodeObject(n) {
     const group = new THREE.Group();
-    const sphere = new THREE.Mesh(
-      new THREE.SphereGeometry(1, 16, 16),
-      new THREE.MeshLambertMaterial({
+    const s = nodeSize(n);
+    // bright core point…
+    const core = new THREE.Mesh(
+      new THREE.SphereGeometry(1, 10, 10),
+      new THREE.MeshBasicMaterial({
         color: nodeColor(n),
         transparent: true,
-        opacity: n.dying ? 0.15 : n.kind === "plumbing" ? 0.45 : 0.95,
-        emissive: nodeColor(n),
-        emissiveIntensity: n.cited || n.fresh ? 0.9 : 0.45,
+        opacity: n.dying ? 0.12 : 1,
       })
     );
-    const s = nodeSize(n);
-    sphere.scale.set(s, s, s);
-    group.add(sphere);
+    core.scale.set(s, s, s);
+    group.add(core);
+    // …with a soft additive halo so it reads as a glowing point of light
+    const halo = new THREE.Mesh(
+      new THREE.SphereGeometry(1, 10, 10),
+      new THREE.MeshBasicMaterial({
+        color: nodeColor(n),
+        transparent: true,
+        opacity: n.dying ? 0 : (n.cited || n.fresh ? 0.35 : 0.16),
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+      })
+    );
+    const hs = s * 2.6;
+    halo.scale.set(hs, hs, hs);
+    group.add(halo);
     if (n.kind !== "plumbing") {
-      const sprite = new SpriteText(n.label.length > 22 ? n.label.slice(0, 21) + "…" : n.label);
+      const sprite = new SpriteText(n.label.length > 20 ? n.label.slice(0, 19) + "…" : n.label);
       sprite.color = nodeColor(n);
-      sprite.textHeight = n.kind === "facttag" ? 3.8 : 4.6;
+      sprite.textHeight = n.kind === "inference" ? 3 : 2.4;
       sprite.fontFace = "JetBrains Mono, monospace";
-      sprite.position.y = -(s + 4);
+      sprite.position.y = -(s + 3);
       sprite.material.depthWrite = false;
+      sprite.material.opacity = n.dying ? 0.1 : 0.85;
       group.add(sprite);
     }
     return group;
