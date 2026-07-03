@@ -1,6 +1,6 @@
 // API base: same-origin by default (HF Spaces serves both), overridable for
 // local dev (?api=http://localhost:8000) or a hardcoded prod backend.
-const HF_BACKEND = "https://himanshukumarjha-vegas-amnesia.hf.space";
+const HF_BACKEND = "https://himanshukumarjha-vegas-amnesia-live.hf.space";
 
 const API_BASE = (() => {
   const param = new URLSearchParams(location.search).get("api");
