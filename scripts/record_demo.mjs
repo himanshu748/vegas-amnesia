@@ -25,6 +25,10 @@ const page = await ctx.newPage();
 await page.goto("http://localhost:8000/");
 mark("boot_start");
 await page.waitForSelector("#game:not(.hidden)", { timeout: 30000 });
+await page.waitForSelector("#howto:not(.hidden)", { timeout: 8000 }).catch(() => {});
+mark("howto");
+await sleep(3500); // let viewers read the tutorial card
+await page.click("#howto-close").catch(() => {});
 mark("suite");
 await sleep(2500);
 
@@ -33,18 +37,21 @@ mark("remember_click");
 await page.click('#hotspots .hotspot:nth-child(2)');
 await page.waitForSelector("#modal-backdrop:not(.hidden)", { timeout: 60000 });
 mark("remember_modal");
-await sleep(3500);
-await page.click("#evidence-close");
+await sleep(3200);
+await page.click("#evidence-file");
+mark("remember_filed");
+await page.waitForFunction(() => document.getElementById("hud-memories").textContent !== "0", null, { timeout: 120000 });
 mark("remember_graph");
-await sleep(4000); // graph animates in
+await sleep(4500); // graph animates in
 
 // --- second evidence for a fuller graph: ice bucket (f20) ---
 await page.click('#hotspots .hotspot:nth-child(3)');
 await page.waitForSelector("#modal-backdrop:not(.hidden)", { timeout: 60000 });
-await sleep(2000);
-await page.click("#evidence-close");
+await sleep(2200); // evidence art visible in modal
+await page.click("#evidence-file");
+await page.waitForFunction(() => parseInt(document.getElementById("hud-memories").textContent) >= 3, null, { timeout: 120000 });
 mark("evidence2_graph");
-await sleep(3500);
+await sleep(4000);
 
 // --- TESTIMONY: Chad (LLM dialogue) ---
 mark("chat_open");
@@ -63,24 +70,26 @@ await page.click('#recall-form button');
 await page.waitForFunction(() => {
   const b = document.getElementById("recall-answer");
   return b && !b.classList.contains("hidden") && !b.textContent.includes("remembering");
-}, { timeout: 90000 });
+}, null, { timeout: 120000 });
 mark("recall_answer");
 await sleep(4500); // citation pulse
 
 // --- MEMIFY: consolidate ---
 mark("memify_click");
 await page.click("#btn-memify");
-await page.waitForFunction(() => !document.getElementById("btn-memify").disabled, { timeout: 120000 });
+await page.waitForFunction(() => !document.getElementById("btn-memify").disabled, null, { timeout: 180000 });
 mark("memify_done");
 await sleep(4500); // purple nodes settle
 
 // --- FORGET: plant the red herring, then prune it ---
+await page.evaluate(() => { window.__preHerring = parseInt(document.getElementById("hud-memories").textContent); });
 await page.click('#hotspots .hotspot:nth-child(5)'); // lipstick napkin
 await page.waitForSelector("#modal-backdrop:not(.hidden)", { timeout: 60000 });
 mark("herring_modal");
 await sleep(3000);
-await page.click("#evidence-close");
-await sleep(3000);
+await page.click("#evidence-file");
+await page.waitForFunction(() => parseInt(document.getElementById("hud-memories").textContent) >= (window.__preHerring || 0) + 1, null, { timeout: 120000 }).catch(() => {});
+await sleep(2500);
 mark("forget_rightclick");
 // drive the forget flow through the same path the right-click menu uses
 // (right-clicking a specific 3D node from playwright is not deterministic)
