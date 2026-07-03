@@ -39,13 +39,24 @@ html, body { height: 100%; background: var(--bg); color: var(--text); font-famil
 }
 #brand { font-weight: 700; color: var(--cyan); text-shadow: 0 0 8px rgba(34,230,255,.6); white-space: nowrap; }
 #brand .dim { color: var(--pink); text-shadow: 0 0 8px rgba(255,46,136,.5); }
-#location-tabs { display: flex; gap: 4px; flex: 1; justify-content: center; flex-wrap: nowrap; overflow-x: auto; }
-.loc-tab {
-  background: none; border: 1px solid #2c2447; color: var(--dim); font-family: var(--mono);
-  font-size: 11px; padding: 6px 10px; cursor: pointer; white-space: nowrap; border-radius: 3px;
+.topbar-spacer { flex: 1; }
+
+/* location bar — its own row, all rooms visible & clickable */
+#location-bar {
+  display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 14px;
+  background: #0c0916; border-bottom: 1px solid #241d3a; overflow: hidden;
 }
-.loc-tab:hover { color: var(--text); border-color: var(--cyan); }
-.loc-tab.active { color: var(--cyan); border-color: var(--cyan); box-shadow: 0 0 10px rgba(34,230,255,.25) inset; }
+.locbar-label { font-family: var(--mono); font-size: 11px; font-weight: 700; color: var(--pink); white-space: nowrap; letter-spacing: 1px; }
+#location-tabs { display: flex; gap: 6px; flex: 1; flex-wrap: nowrap; overflow-x: auto; padding: 4px 0; }
+#location-tabs::-webkit-scrollbar { height: 4px; }
+#location-tabs::-webkit-scrollbar-thumb { background: #2c2447; border-radius: 2px; }
+.loc-tab {
+  background: #120e1f; border: 1px solid #2c2447; color: var(--dim); font-family: var(--mono);
+  font-size: 11px; padding: 7px 12px; cursor: pointer; white-space: nowrap; border-radius: 4px; flex-shrink: 0;
+  transition: color .12s, border-color .12s, box-shadow .12s;
+}
+.loc-tab:hover { color: var(--text); border-color: var(--cyan); box-shadow: 0 0 8px rgba(34,230,255,.3); }
+.loc-tab.active { color: var(--cyan); border-color: var(--cyan); background: #0f1a1f; box-shadow: 0 0 12px rgba(34,230,255,.35) inset; }
 .loc-tab .chardot { color: var(--amber); }
 #clock { color: var(--amber); font-weight: 700; letter-spacing: 2px; text-shadow: 0 0 8px rgba(255,181,69,.5); }
 #clock.late { color: var(--red); animation: flicker 1s infinite; }
@@ -78,7 +89,7 @@ html, body { height: 100%; background: var(--bg); color: var(--text); font-famil
 #objective .obj-hint { color: var(--dim); overflow: hidden; text-overflow: ellipsis; }
 
 /* ---------- layout ---------- */
-#game { position: relative; height: calc(100vh - 52px - 30px); }
+#game { position: relative; height: calc(100vh - 52px - 40px - 30px); }
 #scene { position: absolute; inset: 0; overflow: hidden; }
 /* memory graph slides in from the right on demand */
 #memory-panel {

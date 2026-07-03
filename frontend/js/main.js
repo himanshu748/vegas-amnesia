@@ -29,6 +29,7 @@ const Main = (() => {
     await new Promise(r => setTimeout(r, 900));
     $("boot-screen").style.display = "none";
     $("topbar").classList.remove("hidden");
+    $("location-bar").classList.remove("hidden");
     $("objective").classList.remove("hidden");
     $("game").classList.remove("hidden");
     if (!localStorage.getItem("vegas_howto_seen")) $("howto").classList.remove("hidden");
