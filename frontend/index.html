@@ -6,8 +6,8 @@
 <title>VEGAS AMNESIA — HAL-9001</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Monoton&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=11">
-<script src="js/vendor/graph3d.bundle.js?v=11"></script>
+<link rel="stylesheet" href="css/style.css?v=12">
+<script src="js/vendor/graph3d.bundle.js?v=12"></script>
 </head>
 <body>
 
@@ -49,7 +49,7 @@
       <li><span>🗂</span><b>FILE IT</b> — filing evidence stores it in HAL's memory. Careful: <i>not everything you find is true.</i></li>
       <li><span>💬</span><b>INTERROGATE</b> — talk to people. They react to what your graph already knows. One of them is lying.</li>
       <li><span>🧠</span><b>CONNECT THE DOTS</b> — HAL consolidates memories and derives new purple insights <span class="dim">(Cognee memify)</span>.</li>
-      <li><span>🗑</span><b>FORGET</b> — right-click a memory node to erase a false lead from the graph <span class="dim">(Cognee forget)</span>.</li>
+      <li><span>🗑</span><b>FORGET</b> — click <b>“memories 🗂”</b> to open your log and delete a false lead <span class="dim">(Cognee forget)</span>.</li>
       <li><span>❓</span><b>ASK HAL</b> — type any question; HAL answers from its memory with sources <span class="dim">(Cognee recall)</span>.</li>
     </ol>
     <p class="howto-goal">🎯 Fill <b>KEY MEMORIES</b>, purge the lies, then hit <b>SOLVE THE NIGHT</b>.</p>
@@ -83,7 +83,7 @@
   <!-- MEMORY GRAPH (right 45%) -->
   <section id="memory-panel">
     <div id="graph-hud">
-      <span class="hud-stat"><b id="hud-memories">0</b> memories</span>
+      <button id="hud-open-log" class="hud-stat hud-btn" title="Open the memory log — review & forget memories"><b id="hud-memories">0</b> memories 🗂</button>
       <span class="hud-stat purple"><b id="hud-inferences">0</b> inferences</span>
       <span class="hud-stat red"><b id="hud-forgotten">0</b> forgotten</span>
       <span class="hud-stat dim"><b id="hud-memify">0</b> memify runs</span>
@@ -115,6 +115,18 @@
 <!-- FORGET CONTEXT MENU -->
 <div id="forget-menu" class="hidden"><button id="forget-btn">🗑 FORGET THIS MEMORY</button></div>
 
+<!-- MEMORY LOG (review + forget) -->
+<div id="memlog-backdrop" class="hidden">
+  <div id="memlog">
+    <div id="memlog-head">
+      <span>🗂 HAL'S MEMORY LOG</span>
+      <button id="memlog-close">✕</button>
+    </div>
+    <p id="memlog-hint">Everything you've filed. Suspect a lie? <b>Forget it</b> to purge it from the graph — a clean memory solves the night.</p>
+    <div id="memlog-list"></div>
+  </div>
+</div>
+
 <!-- ENDING SCREEN -->
 <div id="ending-screen" class="hidden">
   <h1 id="ending-verdict-title"></h1>
@@ -134,11 +146,11 @@
 
 <div id="toast-stack"></div>
 
-<script src="js/config.js?v=11"></script>
-<script src="js/api.js?v=11"></script>
-<script src="js/graph.js?v=11"></script>
-<script src="js/scene.js?v=11"></script>
-<script src="js/chat.js?v=11"></script>
-<script src="js/main.js?v=11"></script>
+<script src="js/config.js?v=12"></script>
+<script src="js/api.js?v=12"></script>
+<script src="js/graph.js?v=12"></script>
+<script src="js/scene.js?v=12"></script>
+<script src="js/chat.js?v=12"></script>
+<script src="js/main.js?v=12"></script>
 </body>
 </html>

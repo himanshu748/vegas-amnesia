@@ -220,6 +220,39 @@ html, body { height: 100%; background: var(--bg); color: var(--text); font-famil
 #debug-table td.ok { color: var(--cyan); }
 #debug-table td.err { color: var(--red); }
 
+/* ---------- memory log ---------- */
+.hud-btn { background: none; border: none; font: inherit; color: var(--cyan); cursor: pointer; padding: 0; }
+.hud-btn:hover { text-shadow: 0 0 8px rgba(34,230,255,.8); }
+#memlog-backdrop {
+  position: fixed; inset: 0; z-index: 70; background: rgba(5,3,8,.82);
+  display: flex; align-items: center; justify-content: center;
+}
+#memlog {
+  width: 600px; max-width: 94vw; max-height: 86vh; display: flex; flex-direction: column;
+  background: var(--bg-panel); border: 1px solid var(--cyan); border-radius: 8px;
+  box-shadow: 0 0 44px rgba(34,230,255,.28); padding: 20px 22px;
+}
+#memlog-head { display: flex; justify-content: space-between; align-items: center; color: var(--cyan); font-weight: 700; font-size: 15px; letter-spacing: 1px; }
+#memlog-head button { background: none; border: none; color: var(--dim); font-size: 16px; cursor: pointer; }
+#memlog-hint { font-size: 11px; color: var(--dim); margin: 8px 0 14px; line-height: 1.5; }
+#memlog-hint b { color: var(--red); }
+#memlog-list { overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+.mem-row {
+  display: flex; align-items: center; gap: 10px; padding: 9px 11px; border-radius: 5px;
+  background: #0c0916; border-left: 3px solid var(--cyan); font-size: 12px; line-height: 1.4;
+}
+.mem-row.inference { border-left-color: var(--purple); }
+.mem-row.forgotten { opacity: .4; border-left-color: var(--dim); text-decoration: line-through; }
+.mem-row .mem-text { flex: 1; color: var(--text); }
+.mem-row .mem-src { font-size: 9px; color: var(--dim); letter-spacing: 1px; white-space: nowrap; }
+.mem-forget {
+  font-family: var(--mono); font-size: 11px; font-weight: 700; padding: 5px 10px; cursor: pointer;
+  color: var(--red); background: none; border: 1px solid var(--red); border-radius: 3px; white-space: nowrap;
+}
+.mem-forget:hover { box-shadow: 0 0 12px rgba(255,71,87,.5); }
+.mem-forget.gone { color: var(--dim); border-color: #2c2447; cursor: default; }
+#memlog-empty { color: var(--dim); font-size: 12px; text-align: center; padding: 30px; }
+
 /* ---------- how to play ---------- */
 #howto {
   position: fixed; inset: 0; z-index: 85; background: rgba(5,3,8,.88);

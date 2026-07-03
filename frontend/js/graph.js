@@ -34,6 +34,19 @@ const Graph = (() => {
     return "memory";
   };
 
+  // Turn cryptic node_set tags (f13, rh1, d2) into a few words of the actual
+  // memory, so the graph reads in English instead of ids.
+  function humanLabel(n) {
+    if (n.kind === "facttag") {
+      const rec = factNodes.get(n.label);
+      if (rec && rec.text) {
+        const words = rec.text.replace(/[.,]/g, "").split(/\s+/);
+        return words.slice(0, 4).join(" ");
+      }
+    }
+    return n.label;
+  }
+
   const nodeColor = (n) =>
     n.dying ? COLORS.dying : n.cited ? COLORS.cited : COLORS[n.kind] || COLORS.memory;
   // Points, not bubbles: small glowing dots; inferences slightly larger.
@@ -69,7 +82,8 @@ const Graph = (() => {
     halo.scale.set(hs, hs, hs);
     group.add(halo);
     if (n.kind !== "plumbing") {
-      const sprite = new SpriteText(n.label.length > 20 ? n.label.slice(0, 19) + "…" : n.label);
+      const display = humanLabel(n);
+      const sprite = new SpriteText(display.length > 22 ? display.slice(0, 21) + "…" : display);
       sprite.color = nodeColor(n);
       sprite.textHeight = n.kind === "inference" ? 3 : 2.4;
       sprite.fontFace = "JetBrains Mono, monospace";
@@ -268,6 +282,10 @@ const Graph = (() => {
 
   const allNodes = () => nodes.map((n) => ({ id: n.id, label: n.label }));
 
+  // every fact the player has filed/derived, for the memory log
+  const listFacts = () =>
+    [...factNodes.entries()].map(([fact_id, rec]) => ({ fact_id, ...rec }));
+
   return { init, applyDelta, fullSync, citeNodes, registerFacts, linkInference,
-           factForLabel, markForgotten, allNodes, instance: () => graph };
+           factForLabel, markForgotten, allNodes, listFacts, instance: () => graph };
 })();

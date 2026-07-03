@@ -192,6 +192,60 @@ const Main = (() => {
 
   $("ending-close").onclick = () => $("ending-screen").classList.add("hidden");
 
+  // ---------- forget (shared by memory log + right-click) ----------
+  const forgotten = new Set();
+  async function forgetFact(factId) {
+    if (forgotten.has(factId)) return;
+    forgotten.add(factId);
+    try {
+      const resp = await api.forget(state.session_id, factId);
+      Graph.markForgotten(factId);
+      Graph.applyDelta(resp.graph_delta);
+      updateHud(resp.hud);
+      const pruned = resp.graph_delta?.removed_node_ids?.length || 0;
+      toast(`🗑 forgotten — ${pruned} node${pruned === 1 ? "" : "s"} purged from memory`, "error");
+    } catch (err) {
+      forgotten.delete(factId);
+      toast(err.message, "error");
+    }
+  }
+
+  // ---------- memory log ----------
+  $("hud-open-log").onclick = () => openMemLog();
+  $("memlog-close").onclick = () => $("memlog-backdrop").classList.add("hidden");
+  $("memlog-backdrop").onclick = (e) => {
+    if (e.target.id === "memlog-backdrop") e.target.classList.add("hidden");
+  };
+
+  function openMemLog() {
+    const list = $("memlog-list");
+    const facts = Graph.listFacts();
+    list.innerHTML = "";
+    if (!facts.length) {
+      list.innerHTML = '<div id="memlog-empty">No memories yet. Investigate a location and FILE some evidence.</div>';
+    }
+    for (const f of facts) {
+      const row = document.createElement("div");
+      const isInf = f.source_type === "inference";
+      row.className = "mem-row" + (isInf ? " inference" : "") + (f.forgotten ? " forgotten" : "");
+      const src = isInf ? "INFERRED" : (f.source_type === "testimony" ? "TESTIMONY" : "EVIDENCE");
+      const btn = f.forgotten
+        ? '<button class="mem-forget gone" disabled>forgotten</button>'
+        : `<button class="mem-forget">🗑 forget</button>`;
+      row.innerHTML = `<span class="mem-text">${f.text}</span><span class="mem-src">${src}</span>${btn}`;
+      const b = row.querySelector(".mem-forget");
+      if (b && !f.forgotten) {
+        b.onclick = async () => {
+          b.disabled = true; b.textContent = "…";
+          await forgetFact(f.fact_id);
+          openMemLog(); // refresh the list
+        };
+      }
+      list.appendChild(row);
+    }
+    $("memlog-backdrop").classList.remove("hidden");
+  }
+
   // ---------- recall (Ask HAL) ----------
   $("recall-form").onsubmit = async (e) => {
     e.preventDefault();
@@ -278,7 +332,7 @@ const Main = (() => {
     document.getElementById("boot-log").textContent += `\n> FATAL: backend unreachable — ${err.message}\n> is the API running?`;
   });
 
-  return { inspectHotspot, toast, updateHud, sessionId: () => state?.session_id };
+  return { inspectHotspot, toast, updateHud, forgetFact, sessionId: () => state?.session_id };
 })();
 
 // Right-click → forget menu (registered on graph nodes by graph.js).
@@ -301,13 +355,7 @@ const Forget = (() => {
     e.stopPropagation();
     document.getElementById("forget-menu").classList.add("hidden");
     if (!pendingFactId) return;
-    try {
-      const resp = await api.forget(Main.sessionId(), pendingFactId);
-      Graph.markForgotten(pendingFactId);
-      Graph.applyDelta(resp.graph_delta);
-      Main.updateHud(resp.hud);
-      Main.toast(`🗑 forgot ${pendingFactId} — ${resp.graph_delta.removed_node_ids.length} nodes pruned`, "error");
-    } catch (err) { Main.toast(err.message, "error"); }
+    await Main.forgetFact(pendingFactId);
     pendingFactId = null;
   };
 
