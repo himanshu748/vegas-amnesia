@@ -12,19 +12,17 @@ pinned: false
 
 # 🎰 VEGAS AMNESIA 🧠
 
-**You are HAL-9001 — an AI assistant that woke up in Vegas with a wiped memory graph.**
-Reconstruct last night before your owner's fiancée arrives at noon.
+### You are an AI whose memory was wiped. Reconstruct last night. Find the ring. Before noon.
 
-Every clue you find flows through **Cognee Cloud's full memory lifecycle** —
-`remember → recall → memify → forget` — visualized as a live knowledge graph that **is** the game UI.
+**A detective game where [Cognee Cloud](https://www.cognee.ai)'s entire memory lifecycle —
+`remember → recall → memify → forget` — IS the gameplay,
+visualized as a live 3D knowledge graph.**
 
-**[▶ PLAY NOW — vegas-amnesia.vercel.app](https://vegas-amnesia.vercel.app)**  ·  [mirror on 🤗 Spaces](https://himanshukumarjha-vegas-amnesia.hf.space)
+[**▶ PLAY IT NOW**](https://vegas-amnesia.vercel.app) · [🎬 Demo video (with narration)](docs/demo.mp4) · [🔬 Cognee deep-dive cut](docs/cognee-deep-dive.mp4) · [🤗 HF Space mirror](https://himanshukumarjha-vegas-amnesia.hf.space)
 
-*Built for the WeMakeDevs × Cognee **"The Hangover Part AI"** hackathon — Cognee Cloud track.*
+*WeMakeDevs × Cognee — "The Hangover Part AI" hackathon · Cognee Cloud track*
 
 ![gameplay](docs/media/demo.gif)
-
-🎬 **[Full demo video](docs/demo.mp4)** · 🧠 **[How we use Cognee (deep-dive cut)](docs/cognee-deep-dive.mp4)**
 
 </div>
 
@@ -32,106 +30,101 @@ Every clue you find flows through **Cognee Cloud's full memory lifecycle** —
 
 ## The pitch
 
-Your owner Dev had *a night*. At 6 AM your memory graph was corrupted. A polaroid wall says
-there was a **ceremony**. There's a **ring** on Dev's finger that shouldn't exist, $8,000
-missing, a lipstick-marked napkin, and a stranger snoring on the sofa.
+Your owner **Dev** had a wild night in Vegas. At 6 AM, your memory graph was corrupted.
+His fiancée **Priya** lands at noon — and there's a suspicious ring on his finger.
 
-You have until **noon** to answer one question:
+You are **HAL-9001** (HAL 9000's slightly more helpful successor), and your mind is
+literally a knowledge graph. Every piece of evidence you *file*, every witness confession,
+becomes real memory in a real Cognee Cloud dataset — and appears as glowing nodes in a
+rotating 3D graph that fills half the screen. Some evidence is a lie. Filing it poisons
+your memory. Deleting it is the only cure.
 
-> **"What happened last night — and where is the wedding ring?"**
+## How the memory lifecycle became game mechanics
 
-Explore 6 locations, interrogate 4 LLM-driven characters (one of them is lying), collect ~20
-facts, dodge 5 red herrings — and watch your literal memory come back node by node.
-
-| | |
-|---|---|
-| ![hero](docs/media/hero.png) | ![solve](docs/media/solve.png) |
-
-## Memory lifecycle usage (for the judges)
-
-Every mechanic below is a **real Cognee Cloud API call** — verified live by
-[`scripts/smoke_test.py`](scripts/smoke_test.py) and logged in-game (press <kbd>`</kbd> for the
-raw call log with timings — the receipts).
-
-| Lifecycle op | Cognee Cloud endpoint | In-game mechanic |
+| Cognee op | Endpoint (all verified live — `scripts/smoke_test.py`) | In-game |
 |---|---|---|
-| `remember` | `POST /api/v1/remember` — multipart, auto-cognifies; **one data item per fact**, named by fact id | Inspect evidence / extract testimony → facts ingested → cyan nodes pop into the graph |
-| `recall` | `POST /api/v1/recall` with `includeReferences` (+ `/search` for typed queries) | **"Ask HAL"** free-text questions + the final *Solve the Night* check — answers cite source nodes, which pulse amber |
-| `memify` | `POST /api/v1/cognify` re-run with a custom **inference-extraction prompt**¹ + derived inferences remembered as new memory items | **CONSOLIDATE** button → purple, dash-edged inference nodes appear ("the real ring never left the safe…") |
-| `forget` | `POST /api/v1/forget` with `dataId` — dedicated unified-deletion endpoint | **Right-click any memory → FORGET** — prune red herrings; nodes fade out for real. Forgetting a *true* fact is allowed (re-discoverable). Risk/reward. |
+| **remember** | `POST /api/v1/remember` — one data item per fact, auto-cognified, named by fact id | 🗂 **FILE IT** — evidence & testimony become cyan graph nodes |
+| **recall** | `POST /api/v1/recall` + `includeReferences` | ❓ **ASK HAL** — free-text questions; cited source nodes pulse amber |
+| **memify** | `POST /api/v1/cognify` re-run with an inference-extraction prompt¹ + derived facts remembered | 🧠 **CONNECT THE DOTS** — purple inference nodes with particle edges |
+| **forget** | `POST /api/v1/forget` with `dataId` | 🗑 **right-click a node** — red herrings die on screen, for real |
 
-¹ Our Cognee Cloud tenant doesn't expose `/api/v1/memify`, so per the closest-equivalent rule
-memify = a `cognify` re-run whose `customPrompt` extracts *inferred* temporal/causal/contradiction
-relationships (see `MEMIFY_PROMPT` in [`backend/services/cognee_client.py`](backend/services/cognee_client.py)),
-plus a derivation layer that commits inferences back into Cognee as first-class memories.
+¹ Our tenant doesn't expose `/api/v1/memify`, so per the closest-equivalent rule memify =
+`cognify` re-run whose `customPrompt` extracts temporal/causal/contradiction relationships
+(see `MEMIFY_PROMPT` in [`backend/services/cognee_client.py`](backend/services/cognee_client.py)),
+plus a derivation layer that remembers ground-truth inferences once their premises are in memory.
 
-**Also:** every game session gets its **own Cognee dataset** (demo runs never pollute each
-other), every response carries an incremental **`graph_delta`** so the frontend animates
-changes instead of re-fetching, and the win condition is scored against remembered-vs-forgotten
-ground-truth facts — you literally cannot win while your graph is contaminated with more than
-one red herring.
+**Deep-usage receipts for the judges:**
+- 🔑 **One Cognee dataset per game session** — demo runs never pollute each other; reset deletes the dataset.
+- 📈 **Incremental `graph_delta`s** on every response — the frontend animates exactly what changed.
+- 📎 **Citations everywhere** — recall answers carry chunk/document references; the ending timeline cites its nodes.
+- ⌨️ **Press backtick in-game** for the raw lifecycle call log (op, dataset, latency, status) — live from the backend.
+
+<div align="center">
+
+![the 3D memory graph mid-investigation](docs/media/hero.png)
+
+</div>
+
+## Playing it (2 minutes to learn)
+
+1. 🔍 **Investigate** — six locations, ~20 evidence hotspots, glowing rings.
+2. 🗂 **File what you trust** — inspecting is free; filing commits it to Cognee. *Not everything you find is true.*
+3. 💬 **Interrogate** — Rosa, Lucky Lou, Rev. Sonny, and Chad are LLM-driven and **react to what your graph already knows**. One of them is lying — the graph can catch the contradiction.
+4. 🧠 **Connect the dots** — consolidation derives inferences you never filed.
+5. 🗑 **Forget the lies** — 5 red herrings are seeded through the story; carrying more than one costs you the case.
+6. 🎯 **Solve the night** — coverage-scored against a 20-fact ground-truth timeline.
+
+A first-boot **HOW TO PLAY** card teaches all of this in-game (`?` in the top bar).
 
 ## Architecture
 
 ```
- browser — vanilla JS + Cytoscape.js (no framework)
-   │  inspect evidence · interrogate characters · consolidate · forget · Ask-HAL
+ browser — vanilla JS + three.js 3D force graph (zero framework)
+   │  file evidence / interrogate / connect-the-dots / forget / Ask HAL
    ▼
- FastAPI — HF Docker Space (also serves the static frontend; Vercel hosts a second front door)
-   │  session_store  : session ⇄ its own Cognee dataset (+ graph-delta snapshots)
-   │  game.py        : ground-truth fact reveals, solve scoring
-   │  llm.py         : character dialogue (HF Qwen2.5-72B / Anthropic, scripted fallback)
+ FastAPI (single container: API + static frontend)      HF Docker Space
+   │  session ←→ its own Cognee dataset · graph-delta snapshots · solve scoring
+   │  llm.py: graph-aware character dialogue (HF Qwen 72B / Anthropic)
    ▼
  Cognee Cloud tenant — remember / recall / memify / forget
-   └─ GET /datasets/{id}/graph → Cytoscape deltas animated in the memory panel
+   └─ GET /datasets/{id}/graph → animated into the 3D memory panel
 ```
 
-- **Story**: [`story/ground_truth.json`](story/ground_truth.json) — 20 atomic facts, 5 red herrings
-  (each debunkable), 4 derivable inferences. [`story/world.json`](story/world.json) — 6 locations,
-  21 hotspots, 4 characters with knowledge maps (Lucky Lou lies until you find the receipt).
-- **Dialogue**: deterministic fact reveals (reliable demo) + LLM-generated lines that get the
-  player's **current graph contents** in the prompt — characters react to what you already know.
-- **Resilience**: public play is rate-budgeted (per-IP/hour + global/day), sessions are capped
-  with oldest-eviction + dataset cleanup, and Cognee errors degrade gracefully — the game loop
-  never hard-crashes.
+- **Frontend** [`frontend/`](frontend/) — vanilla JS, `3d-force-graph` (three.js), Higgsfield-generated art (6 backdrops, 4 portraits, 14 evidence items)
+- **Backend** [`backend/`](backend/) — Python 3.11 / FastAPI; every Cognee call wrapped, timed, and logged in [`cognee_client.py`](backend/services/cognee_client.py)
+- **Story** [`story/`](story/) — 20 ground-truth facts, 5 red herrings, 4 derivable inferences, 4 characters with knowledge maps
+- **Tests** — 23 offline tests (Cognee mocked to its verified live behavior): `pytest tests/`
 
-## Run locally
+## Run it locally
 
 ```bash
-cp .env.example .env          # COGNEE_API_KEY (+ tenant COGNEE_BASE_URL), HF_TOKEN for dialogue
+cp .env.example .env          # COGNEE_API_KEY (+ COGNEE_BASE_URL, HF_TOKEN)
 python -m venv .venv && .venv/bin/pip install -r backend/requirements.txt
 
-.venv/bin/python scripts/smoke_test.py     # gate: all four lifecycle ops vs Cognee Cloud
-.venv/bin/python -m pytest tests/ -q       # 23 tests, Cognee mocked
-
-.venv/bin/uvicorn backend.app:app --reload --port 8000   # → http://localhost:8000
+.venv/bin/python scripts/smoke_test.py     # verify all 4 lifecycle ops against Cognee Cloud
+.venv/bin/uvicorn backend.app:app --port 8000
+# → http://localhost:8000
 ```
 
-## Deploy
+Deploy: push this repo to a HF Docker Space (secrets: `COGNEE_API_KEY`, `COGNEE_BASE_URL`,
+`HF_TOKEN`) — or `npx vercel deploy --prod` for the static frontend, which talks to the Space.
+Public play is rate-limited (per-IP + daily budget) so the Cognee tenant survives the internet;
+an access code (in our submission notes) bypasses limits for judges.
 
-- **Backend + UI (single service)**: HF Docker Space — `python scripts/deploy_space.py`
-  (secrets: `COGNEE_API_KEY`, `COGNEE_BASE_URL`, `HF_TOKEN`, optional `ACCESS_CODE`).
-- **Frontend (static)**: Vercel — `npx vercel deploy --prod --yes`
-  (`vercel.json` serves `frontend/`; `config.js` routes API calls to the Space).
+## Demo videos
 
-## Repo layout
+- [`docs/demo.mp4`](docs/demo.mp4) — 80s, narrated: full gameplay + all four lifecycle stages
+- [`docs/cognee-deep-dive.mp4`](docs/cognee-deep-dive.mp4) — 44s, endpoint-level captions (no narration, talk over it)
+- Fully reproducible: `record_demo.mjs` (scripted playthrough) → `make_cards.mjs` (HTML-rendered neon cards) → `build_demo_v2.sh` → `make_narration.sh` (neural TTS) → `mux_audio.sh`
 
-```
-backend/
-  services/   cognee_client.py (ALL Cognee calls, timed + logged) · llm.py · solve.py · sessions
-  routers/    session / game / memory endpoints (each response ships a graph_delta)
-  prompts/    graph-aware character dialogue prompt
-story/        ground_truth.json (the true timeline) · world.json (locations/hotspots/characters)
-frontend/     vanilla JS + Cytoscape.js · assets/manifest.json (art drops in without code changes)
-scripts/      smoke_test.py · deploy_space.py · record_demo.mjs (scripted playthrough recorder)
-tests/        23 offline tests (Cognee mocked to its verified live behavior)
-docs/         demo.mp4 · cognee-deep-dive.mp4 · media/
-```
+## Disclosures
 
-## Credits & disclosures
+Built with **Claude Code** (per hackathon rules). Art generated with **Higgsfield** (soul_2).
+Dialogue: **Qwen2.5-72B** via HF Inference API. Memory: **Cognee Cloud** — and nothing else;
+there is no local fact store, the graph you see is the dataset.
 
-- **Built with Claude Code** (AI-assistant disclosure, as required by hackathon rules) —
-  including the demo video, which is a scripted-playthrough recording cut by the agent.
-- Character portraits & location backdrops generated with **Higgsfield** (neon-noir painterly).
-- Dialogue LLM: **Qwen2.5-72B-Instruct** via HuggingFace Inference API.
-- Memory: **Cognee Cloud** — thanks for a genuinely fun API to build on. 🍸
+<div align="center">
+
+**🎲 The house always remembers.**
+
+</div>
