@@ -189,6 +189,30 @@ def test_recall_returns_answer_and_citations(client):
     assert "answer" in r.json()
 
 
+def test_cognee_hiccup_surfaces_friendly_error_not_500(client):
+    """A live Cognee failure during recall/memify/forget must become a friendly
+    502 the UI can toast — never a raw 500 (regression guard)."""
+    sid = start(client)
+    collect(client, sid, "casino_floor", "casino_chip_receipt")
+    collect(client, sid, "hotel_suite", "lipstick_napkin")  # files rh1, forgettable
+
+    async def boom(*a, **k):
+        raise cognee_client.CogneeError("cognee cloud timeout")
+
+    for op in ("recall", "memify", "forget", "get_graph"):
+        setattr(client.fake, op, boom)
+
+    checks = [
+        ("/api/memory/recall", {"session_id": sid, "query": "what happened?"}),
+        ("/api/memory/memify", {"session_id": sid}),
+        ("/api/memory/forget", {"session_id": sid, "fact_id": "rh1"}),
+    ]
+    for path, body in checks:
+        r = client.post(path, json=body)
+        assert r.status_code == 502, f"{path} should be a friendly 502, got {r.status_code}"
+        assert "Cognee" in r.json()["detail"]
+
+
 def test_solve_flow_win_and_contamination(client):
     sid = start(client)
     key_hotspots = [

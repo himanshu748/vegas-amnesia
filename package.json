@@ -1,4 +1,19 @@
 {
+  "name": "vegas-amnesia",
+  "version": "1.0.0",
+  "description": "A detective game where Cognee Cloud's memory lifecycle (remember → recall → memify → forget) IS the gameplay, visualized as a live 3D knowledge graph.",
+  "license": "MIT",
+  "scripts": {
+    "bundle:graph": "esbuild scripts/graph3d-entry.js --bundle --format=iife --minify --outfile=frontend/js/vendor/graph3d.bundle.js",
+    "smoke": "python3 scripts/smoke_test.py",
+    "demo:record": "node scripts/record_demo.mjs",
+    "demo:cards": "node scripts/make_cards.mjs",
+    "demo:thumbnail": "node scripts/make_thumbnail.mjs",
+    "demo:gif": "node scripts/record_gif.mjs",
+    "demo:build": "bash scripts/build_demo_v2.sh",
+    "demo:narrate": "bash scripts/make_narration.sh",
+    "demo:audio": "bash scripts/mux_audio.sh"
+  },
   "devDependencies": {
     "3d-force-graph": "^1.73.4",
     "esbuild": "^0.28.1",

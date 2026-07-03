@@ -95,7 +95,7 @@ A first-boot **HOW TO PLAY** card teaches all of this in-game (`?` in the top ba
 - **Frontend** [`frontend/`](frontend/) — vanilla JS, `3d-force-graph` (three.js), Higgsfield-generated art (6 backdrops, 4 portraits, 14 evidence items)
 - **Backend** [`backend/`](backend/) — Python 3.11 / FastAPI; every Cognee call wrapped, timed, and logged in [`cognee_client.py`](backend/services/cognee_client.py)
 - **Story** [`story/`](story/) — 20 ground-truth facts, 5 red herrings, 4 derivable inferences, 4 characters with knowledge maps
-- **Tests** — 23 offline tests (Cognee mocked to its verified live behavior): `pytest tests/`
+- **Tests** — 24 offline tests (Cognee mocked to its verified live behavior): `pytest tests/`
 
 ## Run it locally
 

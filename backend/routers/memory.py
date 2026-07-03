@@ -1,6 +1,8 @@
 """Memory lifecycle endpoints — the judge-facing surface: memify/forget/recall/graph."""
 from __future__ import annotations
 
+import logging
+
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
@@ -9,6 +11,22 @@ from backend.routers.session import require_session
 from backend.services import cognee_client, game
 
 router = APIRouter(prefix="/api", tags=["memory"])
+log = logging.getLogger(__name__)
+
+# Human-readable messages the frontend surfaces as a toast (it reads `detail`)
+# when Cognee Cloud itself hiccups mid-demo, instead of a raw 500.
+_COGNEE_DOWN = {
+    "memify": "Couldn't consolidate memories right now — Cognee is unreachable. Try Connect the Dots again in a moment.",
+    "forget": "Couldn't forget that memory right now — Cognee is unreachable. Try again in a moment.",
+    "recall": "HAL couldn't reach its memory right now — Cognee is unreachable. Try asking again in a moment.",
+    "graph": "Couldn't load the memory graph right now — Cognee is unreachable. Try again in a moment.",
+}
+
+
+def _cognee_unavailable(op: str, exc: Exception) -> HTTPException:
+    """Turn a live Cognee failure into a friendly 502 the UI can display."""
+    log.warning("Cognee %s failed: %s", op, exc)
+    return HTTPException(status_code=502, detail=_COGNEE_DOWN[op])
 
 
 class MemifyRequest(BaseModel):
@@ -34,7 +52,10 @@ async def memify(body: MemifyRequest) -> dict:
     Nodes/edges appearing during this call render purple as inferences.
     """
     session = require_session(body.session_id)
-    await cognee_client.memify(session.dataset)
+    try:
+        await cognee_client.memify(session.dataset)
+    except Exception as exc:
+        raise _cognee_unavailable("memify", exc)
     session.memify_runs += 1
 
     truth = load_ground_truth()
@@ -45,24 +66,27 @@ async def memify(body: MemifyRequest) -> dict:
         and set(d.derived_from) <= session.active_fact_ids
     ]
     new_inferences = []
-    if derived:
-        result = await cognee_client.remember(derived, session.dataset)
-        for entry in result["remembered"]:
-            derived_from = next(
-                (d.derived_from for d in truth.derivable if d.id == entry["fact_id"]), [])
-            record = {
-                "fact_id": entry["fact_id"],
-                "text": entry["text"],
-                "data_id": entry["data_id"],
-                "source_type": "inference",
-                "source_ref": f"memify_run_{session.memify_runs}",
-                "is_red_herring": False,
-                "time_hint": None,
-                "derived_from": derived_from,
-            }
-            session.discovered[entry["fact_id"]] = record
-            new_inferences.append(record)
-    graph, delta = await game.fresh_graph_delta(session)
+    try:
+        if derived:
+            result = await cognee_client.remember(derived, session.dataset)
+            for entry in result["remembered"]:
+                derived_from = next(
+                    (d.derived_from for d in truth.derivable if d.id == entry["fact_id"]), [])
+                record = {
+                    "fact_id": entry["fact_id"],
+                    "text": entry["text"],
+                    "data_id": entry["data_id"],
+                    "source_type": "inference",
+                    "source_ref": f"memify_run_{session.memify_runs}",
+                    "is_red_herring": False,
+                    "time_hint": None,
+                    "derived_from": derived_from,
+                }
+                session.discovered[entry["fact_id"]] = record
+                new_inferences.append(record)
+        graph, delta = await game.fresh_graph_delta(session)
+    except Exception as exc:
+        raise _cognee_unavailable("memify", exc)
     new_ids = {n["data"]["id"] for n in delta["added_nodes"]}
     session.inference_node_ids |= new_ids
     # re-tag the freshly added nodes now that they're known to be inferences
@@ -88,11 +112,14 @@ async def forget(body: ForgetRequest) -> dict:
     if body.fact_id in session.forgotten:
         raise HTTPException(status_code=409, detail="fact already forgotten")
 
-    await cognee_client.forget(
-        session.dataset, data_id=record.get("data_id"), fact_id=body.fact_id
-    )
-    session.forgotten.add(body.fact_id)
-    _, delta = await game.fresh_graph_delta(session)
+    try:
+        await cognee_client.forget(
+            session.dataset, data_id=record.get("data_id"), fact_id=body.fact_id
+        )
+        session.forgotten.add(body.fact_id)
+        _, delta = await game.fresh_graph_delta(session)
+    except Exception as exc:
+        raise _cognee_unavailable("forget", exc)
     return {"forgotten": body.fact_id, "graph_delta": delta, "hud": game.hud_counts(session)}
 
 
@@ -101,10 +128,13 @@ async def recall(body: RecallRequest) -> dict:
     """Ask HAL: free-text recall over the session's memory, with graph-node
     citations (nodes whose labels appear in the answer get pulse-highlighted)."""
     session = require_session(body.session_id)
-    answer = await cognee_client.recall(body.query, session.dataset)
+    try:
+        answer = await cognee_client.recall(body.query, session.dataset)
+        graph = await cognee_client.get_graph(session.dataset)
+    except Exception as exc:
+        raise _cognee_unavailable("recall", exc)
 
     answer_text = str(answer).lower()
-    graph = await cognee_client.get_graph(session.dataset)
     cited = [
         str(n.get("id"))
         for n in graph.get("nodes", [])
@@ -118,5 +148,8 @@ async def recall(body: RecallRequest) -> dict:
 @router.get("/graph")
 async def full_graph(session_id: str) -> dict:
     session = require_session(session_id)
-    graph, delta = await game.fresh_graph_delta(session)
+    try:
+        graph, delta = await game.fresh_graph_delta(session)
+    except Exception as exc:
+        raise _cognee_unavailable("graph", exc)
     return {"graph": graph, "graph_delta": delta, "hud": game.hud_counts(session)}
