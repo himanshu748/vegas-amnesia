@@ -5,7 +5,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-DUR=79.2
+DUR=63
 VO=docs/vo
 
 # --- ambient bed: detuned A1 drone + fifth + slow swell + vinyl-ish texture ---
@@ -25,7 +25,7 @@ ffmpeg -y -loglevel error \
   -map "[bed]" -ac 2 docs/vo/bed.wav
 
 # --- timed VO track (starts in seconds) ---
-starts=(intro:0.3 s1:5.8 s2:13.2 s3:20.0 s3b:26.2 s4:31.5 s5:38.2 s6:44.3 s7:51.5 s7b:55.5 s8:64.0 s9:70.0 outro:75.3)
+starts=(intro:0.3 s1:4.3 s2:12.3 s3:20.3 s5:27.3 s6:34.3 s7b:41.3 s8:48.3 s9:54.3 outro:59.3)
 inputs=(); filters=""; mix=""
 i=0
 for pair in "${starts[@]}"; do
