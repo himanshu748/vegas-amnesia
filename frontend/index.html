@@ -6,8 +6,8 @@
 <title>VEGAS AMNESIA — HAL-9001</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Monoton&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=8">
-<script src="js/vendor/graph3d.bundle.js?v=8"></script>
+<link rel="stylesheet" href="css/style.css?v=9">
+<script src="js/vendor/graph3d.bundle.js?v=9"></script>
 </head>
 <body>
 
@@ -26,15 +26,35 @@
   <div id="brand">HAL-9001<span class="dim">//VEGAS AMNESIA</span></div>
   <nav id="location-tabs"></nav>
   <div id="clock" title="Priya arrives at noon">06:00 AM</div>
-  <button id="btn-memify" class="neon-btn purple" title="Run memify — consolidate memories into inferences">🧠 CONSOLIDATE</button>
+  <button id="btn-memify" class="neon-btn purple" title="Cognee memify — HAL derives new inferences from what you've remembered">🧠 CONNECT THE DOTS</button>
   <button id="btn-solve" class="neon-btn pink" title="Answer the final question">🎯 SOLVE THE NIGHT</button>
+  <button id="btn-help" class="neon-btn" title="How to play">?</button>
 </header>
 
 <!-- CASE OBJECTIVE -->
 <div id="objective" class="hidden">
   <span class="obj-label">📋 CASE:</span> find Priya's engagement ring &amp; reconstruct last night before she arrives
   <span class="obj-progress">KEY MEMORIES <b id="obj-count">0/10</b></span>
-  <span class="obj-hint">inspect evidence → FILE what you trust → consolidate → forget false leads → solve</span>
+  <span class="obj-hint">inspect evidence → FILE what you trust → connect the dots → forget false leads → solve</span>
+</div>
+
+<!-- HOW TO PLAY -->
+<div id="howto" class="hidden">
+  <div id="howto-card">
+    <h2>YOU ARE HAL-9001</h2>
+    <p class="howto-sub">Dev's AI assistant. Your memory was wiped at 6 AM. Priya lands at noon.<br>
+    Everything you learn becomes a <b>living memory graph</b> — that's the panel on the right.</p>
+    <ol>
+      <li><span>🔍</span><b>INVESTIGATE</b> — click the glowing rings in each location to examine evidence.</li>
+      <li><span>🗂</span><b>FILE IT</b> — filing evidence stores it in HAL's memory. Careful: <i>not everything you find is true.</i></li>
+      <li><span>💬</span><b>INTERROGATE</b> — talk to people. They react to what your graph already knows. One of them is lying.</li>
+      <li><span>🧠</span><b>CONNECT THE DOTS</b> — HAL consolidates memories and derives new purple insights <span class="dim">(Cognee memify)</span>.</li>
+      <li><span>🗑</span><b>FORGET</b> — right-click a memory node to erase a false lead from the graph <span class="dim">(Cognee forget)</span>.</li>
+      <li><span>❓</span><b>ASK HAL</b> — type any question; HAL answers from its memory with sources <span class="dim">(Cognee recall)</span>.</li>
+    </ol>
+    <p class="howto-goal">🎯 Fill <b>KEY MEMORIES</b>, purge the lies, then hit <b>SOLVE THE NIGHT</b>.</p>
+    <button id="howto-close" class="neon-btn cyan">START INVESTIGATING</button>
+  </div>
 </div>
 
 <main id="game" class="hidden">
@@ -114,11 +134,11 @@
 
 <div id="toast-stack"></div>
 
-<script src="js/config.js?v=8"></script>
-<script src="js/api.js?v=8"></script>
-<script src="js/graph.js?v=8"></script>
-<script src="js/scene.js?v=8"></script>
-<script src="js/chat.js?v=8"></script>
-<script src="js/main.js?v=8"></script>
+<script src="js/config.js?v=9"></script>
+<script src="js/api.js?v=9"></script>
+<script src="js/graph.js?v=9"></script>
+<script src="js/scene.js?v=9"></script>
+<script src="js/chat.js?v=9"></script>
+<script src="js/main.js?v=9"></script>
 </body>
 </html>

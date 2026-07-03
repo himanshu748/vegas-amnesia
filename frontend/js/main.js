@@ -31,6 +31,7 @@ const Main = (() => {
     $("topbar").classList.remove("hidden");
     $("objective").classList.remove("hidden");
     $("game").classList.remove("hidden");
+    if (!localStorage.getItem("vegas_howto_seen")) $("howto").classList.remove("hidden");
     startClock();
   }
 
@@ -107,13 +108,27 @@ const Main = (() => {
         toast(`+${resp.facts.length} memories remembered · graph +${delta.nodes} nodes`);
       }
       updateHud(resp.hud);
+      maybeNudgeDots(resp.hud);
     } catch (err) { toast(err.message, "error"); }
   }
 
   // ---------- memify / solve ----------
+  $("howto-close").onclick = () => {
+    $("howto").classList.add("hidden");
+    localStorage.setItem("vegas_howto_seen", "1");
+  };
+  $("btn-help").onclick = () => $("howto").classList.remove("hidden");
+
+  let dotsNudged = false;
+  function maybeNudgeDots(hud) {
+    if (dotsNudged || !hud || hud.memories < 4 || hud.memify_runs > 0) return;
+    dotsNudged = true;
+    toast("💡 TIP: you have enough memories — hit 🧠 CONNECT THE DOTS to let HAL infer what they mean", "purple");
+  }
+
   $("btn-memify").onclick = async () => {
     const btn = $("btn-memify");
-    btn.disabled = true; btn.textContent = "🧠 CONSOLIDATING…";
+    btn.disabled = true; btn.textContent = "🧠 THINKING…";
     try {
       const resp = await api.memify(state.session_id);
       const delta = Graph.applyDelta(resp.graph_delta, { inference: true });
@@ -128,7 +143,7 @@ const Main = (() => {
           : "memify ran — no new inferences yet. Discover more first.", "purple");
       }
     } catch (err) { toast(err.message, "error"); }
-    btn.disabled = false; btn.textContent = "🧠 CONSOLIDATE";
+    btn.disabled = false; btn.textContent = "🧠 CONNECT THE DOTS";
   };
 
   $("btn-solve").onclick = async () => {
