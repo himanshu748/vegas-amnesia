@@ -1,6 +1,8 @@
 # YouTube upload package
 
 **File to upload:** `docs/demo.mp4` (80s, 1600×900, narrated + music)
+
+**LIVE (Unlisted): https://youtu.be/SpW38DW5YuM**
 **Thumbnail:** `docs/social/thumbnail.png` (1280×720)
 
 ---

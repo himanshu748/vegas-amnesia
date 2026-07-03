@@ -1,6 +1,6 @@
 # LinkedIn post
 
-Attach the YouTube link or `docs/demo.mp4`. Post the thumbnail if uploading the link as an image.
+Demo: https://youtu.be/SpW38DW5YuM  (or upload `docs/demo.mp4` natively for in-feed autoplay).
 
 ---
 

@@ -1,6 +1,7 @@
 # X / Twitter thread
 
-Attach `docs/demo.mp4` (or the YouTube link) to tweet 1. Tag @cognee_ and @WeMakeDevs.
+Attach `docs/demo.mp4` natively for autoplay, OR paste the YouTube link: https://youtu.be/SpW38DW5YuM
+Tag @cognee_ and @WeMakeDevs.
 
 ---
 
