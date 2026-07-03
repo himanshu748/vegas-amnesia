@@ -135,8 +135,10 @@ const Main = (() => {
       updateHud(resp.hud);
       if (resp.inferences?.length) {
         Graph.registerFacts(resp.inferences);
-        resp.inferences.forEach((inf, i) =>
-          setTimeout(() => toast(`💡 INFERRED: ${inf.text}`, "purple"), i * 900));
+        resp.inferences.forEach((inf, i) => {
+          setTimeout(() => toast(`💡 INFERRED: ${inf.text}`, "purple"), i * 900);
+          setTimeout(() => Graph.linkInference(inf), 1200);
+        });
       } else {
         toast(delta.nodes || delta.edges
           ? `💡 memify: +${delta.nodes} inferred nodes, +${delta.edges} edges`

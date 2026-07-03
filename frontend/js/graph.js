@@ -20,10 +20,17 @@ const Graph = (() => {
   const nodeById = new Map();
   const factNodes = new Map(); // fact_id -> fact record (for forget mapping)
 
+  // Cognee's generic type/plumbing nodes read as noise — demote them to
+  // unlabeled background dots so the entities carry the story.
+  const GENERIC = new Set([
+    "object", "person", "location", "date", "concept", "organization",
+    "entity", "event", "time", "thing", "place", "item", "action", "activity",
+  ]);
   const kindOf = (label, type) => {
     if (type === "inference") return "inference";
-    if (/^(DocumentChunk|TextSummary|TextDocument|EntityType)/.test(label)) return "plumbing";
-    if (/^(f|rh)\d+$/.test(label)) return "facttag";
+    if (/^(DocumentChunk|TextSummary|TextDocument|EntityType|NodeSet)/.test(label)) return "plumbing";
+    if (GENERIC.has(label.trim().toLowerCase())) return "plumbing";
+    if (/^(f|rh|d)\d+$/.test(label)) return "facttag";
     return "memory";
   };
 
@@ -223,6 +230,24 @@ const Graph = (() => {
     for (const f of facts) factNodes.set(f.fact_id, f);
   }
 
+  // CONNECT THE DOTS, literally: draw purple particle edges from an
+  // inference's premise fact-tags to the inference's own tag node.
+  function linkInference(inference) {
+    if (!inference.derived_from?.length) return;
+    const byLabel = new Map(nodes.map((n) => [n.label.toLowerCase(), n.id]));
+    const target = byLabel.get(inference.fact_id.toLowerCase());
+    if (!target) return;
+    let added = 0;
+    for (const premise of inference.derived_from) {
+      const source = byLabel.get(premise.toLowerCase());
+      const id = `dots:${premise}->${inference.fact_id}`;
+      if (!source || links.some((l) => l.id === id)) continue;
+      links.push({ id, source, target, label: "derived from", inference: true });
+      added++;
+    }
+    if (added) graph.graphData({ nodes, links });
+  }
+
   function factForLabel(label) {
     const lower = (label || "").toLowerCase();
     let best = null, bestScore = 0;
@@ -243,6 +268,6 @@ const Graph = (() => {
 
   const allNodes = () => nodes.map((n) => ({ id: n.id, label: n.label }));
 
-  return { init, applyDelta, fullSync, citeNodes, registerFacts, factForLabel,
-           markForgotten, allNodes, instance: () => graph };
+  return { init, applyDelta, fullSync, citeNodes, registerFacts, linkInference,
+           factForLabel, markForgotten, allNodes, instance: () => graph };
 })();

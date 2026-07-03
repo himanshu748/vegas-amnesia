@@ -48,6 +48,8 @@ async def memify(body: MemifyRequest) -> dict:
     if derived:
         result = await cognee_client.remember(derived, session.dataset)
         for entry in result["remembered"]:
+            derived_from = next(
+                (d.derived_from for d in truth.derivable if d.id == entry["fact_id"]), [])
             record = {
                 "fact_id": entry["fact_id"],
                 "text": entry["text"],
@@ -56,6 +58,7 @@ async def memify(body: MemifyRequest) -> dict:
                 "source_ref": f"memify_run_{session.memify_runs}",
                 "is_red_herring": False,
                 "time_hint": None,
+                "derived_from": derived_from,
             }
             session.discovered[entry["fact_id"]] = record
             new_inferences.append(record)
