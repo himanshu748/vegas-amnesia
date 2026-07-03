@@ -122,7 +122,7 @@ never did.
 ## Try it
 
 - 🎮 **Play:** [vegas-amnesia.vercel.app](https://vegas-amnesia.vercel.app)
-- 🎬 **90-second demo:** [watch on YouTube](https://youtu.be/MM1nnQxJARo)
+- 🎬 **63-second demo:** [watch on YouTube](https://youtu.be/MM1nnQxJARo)
 - ⭐ **Code + full README:** [github.com/himanshu748/vegas-amnesia](https://github.com/himanshu748/vegas-amnesia)
 
 Built with Claude Code. Art generated with Higgsfield. Dialogue by Qwen2.5-72B. Memory — all of it —
