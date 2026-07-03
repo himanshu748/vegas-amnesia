@@ -35,9 +35,11 @@ His fiancée **Priya** lands at noon — and there's a suspicious ring on his fi
 
 You are **HAL-9001** (HAL 9000's slightly more helpful successor), and your mind is
 literally a knowledge graph. Every piece of evidence you *file*, every witness confession,
-becomes real memory in a real Cognee Cloud dataset — and appears as glowing nodes in a
-rotating 3D graph that fills half the screen. Some evidence is a lie. Filing it poisons
-your memory. Deleting it is the only cure.
+becomes real memory in a real Cognee Cloud dataset — glowing nodes in a live 3D graph you
+pop open whenever you want to think. Some evidence is a lie. Filing it poisons your memory.
+Deleting it is the only cure. Reconstruct enough of the truth, purge the lies, and **Solve
+the Night** — get it right and the timeline snaps back together in a burst of confetti; get
+it wrong and the memory glitches out, incomplete.
 
 ## How the memory lifecycle became game mechanics
 
@@ -46,7 +48,7 @@ your memory. Deleting it is the only cure.
 | **remember** | `POST /api/v1/remember` — one data item per fact, auto-cognified, named by fact id | 🗂 **FILE IT** — evidence & testimony become cyan graph nodes |
 | **recall** | `POST /api/v1/recall` + `includeReferences` | ❓ **ASK HAL** — free-text questions; cited source nodes pulse amber |
 | **memify** | `POST /api/v1/cognify` re-run with an inference-extraction prompt¹ + derived facts remembered | 🧠 **CONNECT THE DOTS** — purple inference nodes with particle edges |
-| **forget** | `POST /api/v1/forget` with `dataId` | 🗑 **right-click a node** — red herrings die on screen, for real |
+| **forget** | `POST /api/v1/forget` with `dataId` | 🗑 **Memory Log** — review every filed memory, delete the red herrings; nodes die on screen, for real |
 
 ¹ Our tenant doesn't expose `/api/v1/memify`, so per the closest-equivalent rule memify =
 `cognify` re-run whose `customPrompt` extracts temporal/causal/contradiction relationships

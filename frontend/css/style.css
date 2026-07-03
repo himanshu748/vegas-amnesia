@@ -218,8 +218,31 @@ html, body { height: 100%; background: var(--bg); color: var(--text); font-famil
   display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px; text-align: center;
 }
 #ending-verdict-title { font-family: "Monoton", cursive; font-size: 46px; margin-bottom: 8px; }
-#ending-verdict-title.win { color: var(--cyan); text-shadow: 0 0 20px rgba(34,230,255,.7); }
-#ending-verdict-title.lose { color: var(--red); text-shadow: 0 0 20px rgba(255,71,87,.7); }
+#ending-verdict-title.win { color: var(--cyan); text-shadow: 0 0 20px rgba(34,230,255,.7); animation: winpop 1s cubic-bezier(.2,1.4,.4,1) both; }
+#ending-verdict-title.lose { color: var(--red); text-shadow: 0 0 20px rgba(255,71,87,.7); animation: loseglitch .5s steps(2) 3; }
+@keyframes winpop {
+  0% { transform: scale(.4); opacity: 0; filter: blur(8px); }
+  60% { transform: scale(1.12); }
+  100% { transform: scale(1); opacity: 1; filter: blur(0); }
+}
+@keyframes loseglitch {
+  0% { transform: translate(0,0); text-shadow: 0 0 20px rgba(255,71,87,.7); }
+  25% { transform: translate(-4px,1px); text-shadow: 3px 0 var(--cyan), -3px 0 var(--red); }
+  50% { transform: translate(4px,-1px); text-shadow: -3px 0 var(--cyan), 3px 0 var(--red); }
+  75% { transform: translate(-2px,0); }
+  100% { transform: translate(0,0); text-shadow: 0 0 20px rgba(255,71,87,.7); }
+}
+#ending-screen.win-flash { animation: winflash 1.4s ease-out; }
+#ending-screen.lose-flash { animation: loseflash .9s ease-out; }
+@keyframes winflash { 0% { background: rgba(34,230,255,.25); } 100% { background: rgba(5,3,8,.96); } }
+@keyframes loseflash { 0%,20% { background: rgba(255,71,87,.22); } 100% { background: rgba(5,3,8,.96); } }
+/* confetti */
+#confetti { position: fixed; inset: 0; z-index: 81; pointer-events: none; overflow: hidden; }
+.confetti-bit { position: absolute; top: -20px; width: 9px; height: 14px; opacity: .95; will-change: transform; animation: conffall linear forwards; }
+@keyframes conffall {
+  0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(105vh) rotate(720deg); opacity: .9; }
+}
 #ending-verdict { max-width: 720px; color: var(--text); font-size: 14px; line-height: 1.6; margin-bottom: 22px; }
 #ending-columns { display: flex; gap: 40px; max-width: 980px; text-align: left; margin-bottom: 24px; overflow-y: auto; }
 #ending-columns h3 { color: var(--pink); font-size: 13px; margin-bottom: 10px; letter-spacing: 2px; }

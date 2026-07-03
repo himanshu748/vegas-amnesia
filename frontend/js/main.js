@@ -174,11 +174,35 @@ const Main = (() => {
     btn.disabled = false; btn.textContent = "🎯 SOLVE THE NIGHT";
   };
 
+  function launchConfetti() {
+    const wrap = document.createElement("div");
+    wrap.id = "confetti";
+    const colors = ["#ff2e88", "#22e6ff", "#b26bff", "#ffb545", "#ffffff"];
+    for (let i = 0; i < 120; i++) {
+      const bit = document.createElement("div");
+      bit.className = "confetti-bit";
+      bit.style.left = Math.random() * 100 + "vw";
+      bit.style.background = colors[i % colors.length];
+      bit.style.animationDuration = (2 + Math.random() * 2.5) + "s";
+      bit.style.animationDelay = (Math.random() * 0.6) + "s";
+      bit.style.width = (6 + Math.random() * 7) + "px";
+      bit.style.height = (10 + Math.random() * 10) + "px";
+      wrap.appendChild(bit);
+    }
+    document.body.appendChild(wrap);
+    setTimeout(() => wrap.remove(), 5200);
+  }
+
   function showEnding(resp) {
     const r = resp.result;
     const title = $("ending-verdict-title");
     title.textContent = r.won ? "NIGHT RECONSTRUCTED" : "MEMORY INCOMPLETE";
     title.className = r.won ? "win" : "lose";
+    const screen = $("ending-screen");
+    screen.classList.remove("win-flash", "lose-flash");
+    void screen.offsetWidth; // restart the flash animation
+    screen.classList.add(r.won ? "win-flash" : "lose-flash");
+    if (r.won) launchConfetti();
     $("ending-verdict").textContent = r.verdict;
     const ol = $("ending-timeline");
     ol.innerHTML = "";
