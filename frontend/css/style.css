@@ -156,6 +156,17 @@ html, body { height: 100%; background: var(--bg); color: var(--text); font-famil
 }
 #character-dock:hover #character-portrait { box-shadow: 0 0 26px rgba(255,181,69,.9); }
 #character-name { margin-top: 5px; font-size: 11px; color: var(--amber); letter-spacing: 1px; }
+/* Priya's noon arrival — bigger, pink, unmissable, non-clickable */
+#character-dock.arrival { cursor: default; animation: priya-in .6s ease-out; }
+#character-dock.arrival #character-portrait {
+  width: 150px; height: 150px; border-color: var(--pink);
+  box-shadow: 0 0 34px rgba(255,46,136,.85);
+}
+#character-dock.arrival #character-name { color: var(--pink); font-weight: 700; }
+@keyframes priya-in {
+  from { transform: translateY(40px) scale(.9); opacity: 0; }
+  to   { transform: translateY(0) scale(1); opacity: 1; }
+}
 
 /* ---------- chat ---------- */
 #chat-drawer {

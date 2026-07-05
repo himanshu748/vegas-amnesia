@@ -67,6 +67,7 @@ class CharacterTalk(BaseModel):
 
 class SolveRequest(BaseModel):
     session_id: str
+    timed_out: bool = False
 
 
 @router.get("/game/state")
@@ -208,6 +209,7 @@ async def solve(body: SolveRequest) -> dict:
         truth,
         remembered_ids=set(session.discovered),
         forgotten_ids=session.forgotten,
+        timed_out=body.timed_out,
     )
     # HAL answers the final question from its actual Cognee memory — shown on
     # the ending screen next to the reconstructed timeline.

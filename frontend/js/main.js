@@ -15,8 +15,9 @@ const Main = (() => {
     "mounting /memory/graph … FAILED",
     "fsck: memory integrity 3% — 97% of last night unrecoverable",
     "owner: DEV — status: UNRESPONSIVE (snoring)",
-    "incoming event: PRIYA arrives 12:00",
-    "objective: reconstruct last night. find the ring.",
+    "incoming event: PRIYA lands 12:00 — hard deadline",
+    "context: you were holding Priya's engagement ring — resized for the wedding",
+    "objective: reconstruct last night. find Priya's engagement ring.",
     "rebooting in detective mode…",
   ];
 
@@ -36,7 +37,9 @@ const Main = (() => {
     startClock();
   }
 
-  // ---------- clock (soft drama timer) ----------
+  // ---------- clock (hard deadline: Priya lands at noon) ----------
+  let warned = false;
+  let priyaArrived = false;
   function startClock() {
     let minutes = 6 * 60;
     clockTimer = setInterval(() => {
@@ -45,8 +48,40 @@ const Main = (() => {
       const h = Math.floor(capped / 60), m = Math.floor(capped % 60);
       const el = $("clock");
       el.textContent = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")} ${h < 12 ? "AM" : "PM"}`;
-      if (capped >= 11 * 60) el.classList.add("late");
+      if (capped >= 11 * 60) {
+        el.classList.add("late");
+        if (!warned) {
+          warned = true;
+          toast("✈️ Priya's flight just landed. She's on her way up — you have until noon.", "error");
+        }
+      }
+      if (capped >= 12 * 60) { stopClock(); priyaArrives(); }
     }, 1000);
+  }
+  function stopClock() { if (clockTimer) { clearInterval(clockTimer); clockTimer = null; } }
+
+  // Priya walks in at noon — the real deadline. Forces the ending on whatever
+  // memory you've reconstructed. Not solved in time = "time ran out" loss.
+  async function priyaArrives() {
+    if (priyaArrived) return;
+    priyaArrived = true;
+    // if the player already finished (won early), don't override their ending
+    if (!$("ending-screen").classList.contains("hidden")) return;
+    Chat.close();
+    const dock = $("character-dock");
+    dock.classList.remove("hidden");
+    dock.classList.add("arrival");
+    dock.onclick = null;
+    $("character-portrait").src = "assets/characters/priya.jpg";
+    $("character-portrait").alt = "Priya";
+    $("character-name").textContent = "PRIYA — SHE'S HERE";
+    Scene.showBubble("I'm here. There's a strange ring on your finger and Dev won't wake up… where is my engagement ring, and what happened last night?");
+    $("clock").textContent = "12:00 PM";
+    await new Promise(r => setTimeout(r, 4200));
+    try {
+      const resp = await api.solve(state.session_id, true);
+      showEnding(resp);
+    } catch (err) { toast(err.message, "error"); }
   }
 
   // ---------- toasts ----------
@@ -167,12 +202,12 @@ const Main = (() => {
 
   $("btn-solve").onclick = async () => {
     const btn = $("btn-solve");
-    btn.disabled = true; btn.textContent = "🎯 EVALUATING…";
+    btn.disabled = true; btn.textContent = "🎯 TELLING PRIYA…";
     try {
       const resp = await api.solve(state.session_id);
       showEnding(resp);
     } catch (err) { toast(err.message, "error"); }
-    btn.disabled = false; btn.textContent = "🎯 SOLVE THE NIGHT";
+    btn.disabled = false; btn.textContent = "🎯 TELL PRIYA";
   };
 
   function launchConfetti() {
@@ -196,8 +231,13 @@ const Main = (() => {
 
   function showEnding(resp) {
     const r = resp.result;
+    // a win ends the night — stop the clock so Priya's noon deadline can't
+    // fire a loss over the top of it
+    if (r.won) { stopClock(); priyaArrived = true; }
     const title = $("ending-verdict-title");
-    title.textContent = r.won ? "NIGHT RECONSTRUCTED" : "MEMORY INCOMPLETE";
+    title.textContent = r.won
+      ? "YOU CAN FACE PRIYA"
+      : (r.timed_out ? "OUT OF TIME" : "NOT READY FOR PRIYA");
     title.className = r.won ? "win" : "lose";
     const screen = $("ending-screen");
     screen.classList.remove("win-flash", "lose-flash");
@@ -213,9 +253,18 @@ const Main = (() => {
       li.onclick = () => { $("ending-screen").classList.add("hidden"); citeFactEntities(entry.text); };
       ol.appendChild(li);
     }
-    const hal = Array.isArray(resp.hal_answer)
-      ? (resp.hal_answer[0]?.text || JSON.stringify(resp.hal_answer[0]))
-      : JSON.stringify(resp.hal_answer);
+    const ans = resp.hal_answer;
+    let hal;
+    if (Array.isArray(ans)) {
+      hal = ans[0]?.text || ans[0]?.answer || JSON.stringify(ans[0]);
+    } else if (ans && typeof ans === "object") {
+      hal = ans.text || ans.answer ||
+        (ans.error
+          ? "HAL's memory was too thin to reconstruct a clean answer — not enough was filed before the deadline."
+          : JSON.stringify(ans));
+    } else {
+      hal = String(ans ?? "");
+    }
     $("ending-hal").textContent = hal;
     $("ending-stats").textContent =
       `coverage ${(r.coverage * 100).toFixed(0)}% · key facts ${r.key_facts_found.length}/${r.key_facts_found.length + r.key_facts_missing.length}` +

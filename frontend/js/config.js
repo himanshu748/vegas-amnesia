@@ -10,4 +10,4 @@ const API_BASE = (() => {
   return HF_BACKEND; // Vercel (or any other static host) -> HF Space API
 })();
 
-const GAME_MINUTES_PER_REAL_SECOND = 0.6; // 6:00AM -> noon in ~10 real minutes
+const GAME_MINUTES_PER_REAL_SECOND = 0.5; // 6:00AM -> noon (Priya's deadline) in ~12 real minutes

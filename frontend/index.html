@@ -6,8 +6,8 @@
 <title>VEGAS AMNESIA — HAL-9001</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&family=Monoton&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=15">
-<script src="js/vendor/graph3d.bundle.js?v=15"></script>
+<link rel="stylesheet" href="css/style.css?v=16">
+<script src="js/vendor/graph3d.bundle.js?v=16"></script>
 </head>
 <body>
 
@@ -28,7 +28,7 @@
   <div class="topbar-spacer"></div>
   <button id="btn-memify" class="neon-btn purple" title="Cognee memify — HAL derives new inferences from what you've remembered">🧠 CONNECT THE DOTS</button>
   <button id="btn-graph" class="neon-btn cyan" title="Open HAL's live memory graph">🕸 GRAPH <span class="gcount" id="btn-graph-count">0</span></button>
-  <button id="btn-solve" class="neon-btn pink" title="Answer the final question">🎯 SOLVE THE NIGHT</button>
+  <button id="btn-solve" class="neon-btn pink" title="Tell Priya what happened — you win if your memory is complete and honest">🎯 TELL PRIYA</button>
   <button id="btn-help" class="neon-btn" title="How to play">?</button>
 </header>
 
@@ -42,14 +42,14 @@
 <div id="objective" class="hidden">
   <span class="obj-label">📋 CASE:</span> find Priya's engagement ring &amp; reconstruct last night before she arrives
   <span class="obj-progress">KEY MEMORIES <b id="obj-count">0/10</b></span>
-  <span class="obj-hint">inspect evidence → FILE what you trust → connect the dots → forget false leads → solve</span>
+  <span class="obj-hint">inspect evidence → FILE what you trust → connect the dots → forget false leads → TELL PRIYA before noon</span>
 </div>
 
 <!-- HOW TO PLAY -->
 <div id="howto" class="hidden">
   <div id="howto-card">
     <h2>YOU ARE HAL-9001</h2>
-    <p class="howto-sub">Dev's AI assistant. Your memory was wiped at 6 AM. Priya lands at noon.<br>
+    <p class="howto-sub">Dev's AI assistant. Your memory was wiped at 6 AM. <b>Priya lands at noon</b> — that's your hard deadline.<br>
     Everything you learn becomes a <b>living memory graph</b> — open it anytime with <b>🕸 MEMORY GRAPH</b>.</p>
     <ol>
       <li><span>🔍</span><b>INVESTIGATE</b> — click the glowing rings in each location to examine evidence.</li>
@@ -59,7 +59,7 @@
       <li><span>🗑</span><b>FORGET</b> — click <b>“memories 🗂”</b> to open your log and delete a false lead <span class="dim">(Cognee forget)</span>.</li>
       <li><span>❓</span><b>ASK HAL</b> — type any question; HAL answers from its memory with sources <span class="dim">(Cognee recall)</span>.</li>
     </ol>
-    <p class="howto-goal">🎯 Fill <b>KEY MEMORIES</b>, purge the lies, then hit <b>SOLVE THE NIGHT</b>.</p>
+    <p class="howto-goal">🎯 Recover the <b>KEY MEMORIES</b>, forget the lies, then <b>TELL PRIYA</b> what happened — before she lands at noon.</p>
     <button id="howto-close" class="neon-btn cyan">START INVESTIGATING</button>
   </div>
 </div>
@@ -154,11 +154,11 @@
 
 <div id="toast-stack"></div>
 
-<script src="js/config.js?v=15"></script>
-<script src="js/api.js?v=15"></script>
-<script src="js/graph.js?v=15"></script>
-<script src="js/scene.js?v=15"></script>
-<script src="js/chat.js?v=15"></script>
-<script src="js/main.js?v=15"></script>
+<script src="js/config.js?v=16"></script>
+<script src="js/api.js?v=16"></script>
+<script src="js/graph.js?v=16"></script>
+<script src="js/scene.js?v=16"></script>
+<script src="js/chat.js?v=16"></script>
+<script src="js/main.js?v=16"></script>
 </body>
 </html>

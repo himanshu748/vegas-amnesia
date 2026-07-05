@@ -24,16 +24,22 @@ class SolveResult(BaseModel):
     coverage: float
     timeline: list[dict]
     verdict: str
+    timed_out: bool = False
 
 
 def evaluate_solve(
     truth: GroundTruth,
     remembered_ids: set[str],
     forgotten_ids: set[str],
+    timed_out: bool = False,
 ) -> SolveResult:
     """remembered_ids/forgotten_ids are ground-truth fact ids the player has
     discovered / explicitly forgotten. A forgotten fact no longer counts for
     either coverage or red-herring contamination.
+
+    timed_out=True means Priya arrived at noon and forced the answer: the win
+    check is identical (a complete, clean graph still wins), but a loss reads as
+    "time ran out" instead of "keep investigating".
     """
     active = remembered_ids - forgotten_ids
 
@@ -49,10 +55,21 @@ def evaluate_solve(
 
     if won:
         verdict = truth.solution_summary
+    elif timed_out:
+        gap = "" if coverage >= KEY_FACT_THRESHOLD else (
+            f" You only recovered {len(found)}/{len(key_ids)} key memories."
+        )
+        lies = "" if len(herrings) <= MAX_ACTIVE_RED_HERRINGS else (
+            f" You're still repeating {len(herrings)} thing(s) that never happened."
+        )
+        verdict = (
+            "Noon. Priya is standing in the doorway and you can't give her a straight "
+            f"answer.{gap}{lies} Time ran out."
+        )
     elif coverage < KEY_FACT_THRESHOLD:
         verdict = (
             f"Your reconstruction has gaps — {len(found)}/{len(key_ids)} key memories "
-            "recovered. Keep investigating."
+            "recovered. Keep investigating before Priya lands."
         )
     else:
         verdict = (
@@ -68,6 +85,7 @@ def evaluate_solve(
         coverage=round(coverage, 3),
         timeline=timeline,
         verdict=verdict,
+        timed_out=timed_out,
     )
 
 

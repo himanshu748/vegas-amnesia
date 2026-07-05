@@ -1,7 +1,7 @@
 {
   "case": {
     "title": "Vegas Amnesia",
-    "final_question": "What happened last night, and where is the wedding ring?",
+    "final_question": "What happened last night, and where is Priya's engagement ring?",
     "owner": "Dev",
     "fiancee": "Priya",
     "deadline": "12:00"
@@ -263,5 +263,5 @@
       "derived_from": ["f04", "f07", "f20"]
     }
   ],
-  "solution_summary": "Dev had a wild but innocent night: won $8,000 at blackjack, bought a vintage watch and gifted it to Marcus, held a novelty friendship ceremony at the chapel (the 'wedding ring' is a $15 gift-shop prop), and the real engagement ring sat in the hotel safe (code 0214) the entire time. The cash is in the ice bucket."
+  "solution_summary": "Dev had a wild but innocent night: won $8,000 at blackjack, bought a vintage watch and gifted it to Marcus, and held a novelty FRIENDSHIP ceremony at the chapel with best man Marcus — not a wedding. The ring on his finger is a $15 gift-shop prop. Priya's real engagement ring — which Dev had taken to Vegas to get resized before the wedding — sat safely in the hotel room safe (code 0214, her birthday) the entire time. The blackjack cash is stuffed in the ice bucket."
 }

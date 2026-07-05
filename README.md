@@ -37,9 +37,10 @@ You are **HAL-9001** (HAL 9000's slightly more helpful successor), and your mind
 literally a knowledge graph. Every piece of evidence you *file*, every witness confession,
 becomes real memory in a real Cognee Cloud dataset — glowing nodes in a live 3D graph you
 pop open whenever you want to think. Some evidence is a lie. Filing it poisons your memory.
-Deleting it is the only cure. Reconstruct enough of the truth, purge the lies, and **Solve
-the Night** — get it right and the timeline snaps back together in a burst of confetti; get
-it wrong and the memory glitches out, incomplete.
+Deleting it is the only cure. Reconstruct enough of the truth and purge the lies before
+**Priya lands at noon** — when the clock strikes 12 she walks in and demands to know where
+her engagement ring is. **Tell her**: get it right and the timeline snaps back together in a
+burst of confetti; run out of time or get it wrong and the memory glitches out, incomplete.
 
 ## How the memory lifecycle became game mechanics
 
@@ -74,7 +75,9 @@ plus a derivation layer that remembers ground-truth inferences once their premis
 3. 💬 **Interrogate** — Rosa, Lucky Lou, Rev. Sonny, and Chad are LLM-driven and **react to what your graph already knows**. One of them is lying — the graph can catch the contradiction.
 4. 🧠 **Connect the dots** — consolidation derives inferences you never filed.
 5. 🗑 **Forget the lies** — 5 red herrings are seeded through the story; carrying more than one costs you the case.
-6. 🎯 **Solve the night** — coverage-scored against a 20-fact ground-truth timeline.
+6. 🎯 **Tell Priya** — before the clock hits **noon**, explain the night. You win only if your memory is complete (8/10 key facts) and honest (lies purged). Coverage-scored against a 20-fact ground-truth timeline.
+
+**⏰ The deadline is real.** Dev's fiancée **Priya lands at noon** (~12 real minutes). When the clock strikes 12 she walks in, asks where her engagement ring is — and forces your answer. Run out of time with a thin or dishonest graph and you lose. Solve early by hitting **TELL PRIYA** whenever you're ready.
 
 A first-boot **HOW TO PLAY** card teaches all of this in-game (`?` in the top bar).
 

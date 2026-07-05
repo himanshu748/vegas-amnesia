@@ -29,7 +29,7 @@ const api = {
   memify: (sid) => api._call("POST", "/api/memory/memify", { session_id: sid }),
   forget: (sid, factId) => api._call("POST", "/api/memory/forget", { session_id: sid, fact_id: factId }),
   recall: (sid, query) => api._call("POST", "/api/memory/recall", { session_id: sid, query }),
-  solve: (sid) => api._call("POST", "/api/game/solve", { session_id: sid }),
+  solve: (sid, timedOut = false) => api._call("POST", "/api/game/solve", { session_id: sid, timed_out: timedOut }),
   graph: (sid) => api._call("GET", "/api/graph", null, { session_id: sid }),
   debugLog: () => api._call("GET", "/api/debug/cognee-log"),
 };
