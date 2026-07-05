@@ -272,7 +272,9 @@ html, body { height: 100%; background: var(--bg); color: var(--text); font-famil
 #ending-timeline li { margin-bottom: 7px; cursor: pointer; }
 #ending-timeline li:hover { color: var(--cyan); }
 #ending-timeline .t { color: var(--amber); font-weight: 700; }
-#ending-hal { font-size: 12px; color: var(--cyan); line-height: 1.6; max-width: 380px; }
+#ending-hal { font-size: 13px; color: var(--cyan); line-height: 1.65; max-width: 380px; white-space: pre-line; }
+.hal-cites { display: block; margin-top: 10px; font-size: 10px; letter-spacing: .5px; color: var(--dim);
+  border-top: 1px solid rgba(0,229,255,.18); padding-top: 8px; }
 #ending-stats { margin-top: 14px; font-size: 11px; color: var(--dim); }
 
 /* ---------- debug overlay ---------- */

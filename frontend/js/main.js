@@ -253,23 +253,48 @@ const Main = (() => {
       li.onclick = () => { $("ending-screen").classList.add("hidden"); citeFactEntities(entry.text); };
       ol.appendChild(li);
     }
-    const ans = resp.hal_answer;
-    let hal;
-    if (Array.isArray(ans)) {
-      hal = ans[0]?.text || ans[0]?.answer || JSON.stringify(ans[0]);
-    } else if (ans && typeof ans === "object") {
-      hal = ans.text || ans.answer ||
-        (ans.error
-          ? "HAL's memory was too thin to reconstruct a clean answer — not enough was filed before the deadline."
-          : JSON.stringify(ans));
-    } else {
-      hal = String(ans ?? "");
+    const { text: hal, cites } = cleanHalAnswer(resp.hal_answer);
+    const halEl = $("ending-hal");
+    halEl.textContent = hal;
+    if (cites) {
+      const c = document.createElement("span");
+      c.className = "hal-cites";
+      c.textContent = `🔗 reconstructed from ${cites} cited ${cites === 1 ? "memory" : "memories"}`;
+      halEl.appendChild(c);
     }
-    $("ending-hal").textContent = hal;
     $("ending-stats").textContent =
       `coverage ${(r.coverage * 100).toFixed(0)}% · key facts ${r.key_facts_found.length}/${r.key_facts_found.length + r.key_facts_missing.length}` +
       ` · active red herrings ${r.active_red_herrings.length}`;
     $("ending-screen").classList.remove("hidden");
+  }
+
+  // HAL's recall answer comes back as Cognee's raw completion: a clean prose
+  // paragraph followed by an "Evidence:" dump of chunk/data_id UUIDs. Show only
+  // the prose, and surface the citations as a tidy count instead of raw UUIDs.
+  function cleanHalAnswer(ans) {
+    let text = "";
+    if (Array.isArray(ans)) {
+      text = ans[0]?.text || ans[0]?.answer || "";
+    } else if (ans && typeof ans === "object") {
+      if (ans.error) return { text: "HAL's memory was too thin to reconstruct a clean answer — not enough was filed before the deadline.", cites: 0 };
+      text = ans.text || ans.answer || "";
+    } else {
+      text = String(ans ?? "");
+    }
+    // count the cited memories before stripping the reference block
+    const cites = (text.match(/chunk\s+\d+\s+of\s+document/gi) || []).length;
+    // cut the trailing "Evidence:/Sources:/References:" reference dump
+    text = text.split(/\n+\s*(?:evidence|sources|references)\s*:/i)[0];
+    // safety net for any inline UUID citations that slipped into the prose
+    text = text
+      .replace(/\((?:data_id|chunk_id)[^)]*\)/gi, "")
+      .replace(/chunk\s+\d+\s+of\s+document\s+\w+/gi, "")
+      .replace(/\bdocument\s+f\w+/gi, "")
+      .replace(/[ \t]{2,}/g, " ")
+      .replace(/\s+([.,;:])/g, "$1")
+      .replace(/\n{3,}/g, "\n\n")
+      .trim();
+    return { text, cites };
   }
 
   function citeFactEntities(text) {
